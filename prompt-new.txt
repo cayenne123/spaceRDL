@@ -82,11 +82,16 @@
                       'After' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 
                       'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')')
 
-<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
-                      'ReqCapByFormula' <Identifier> | 
-                      'ReqCapByNL' <String> | 
-                      'ReqCapByPseudoCode' <Identifier> | 
-                      'ReqCapByFlowChart' <Identifier>
+<ReqCapByForm> ::=
+    'ReqCapByTable' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByFormula' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByNL' (<String> | '{' <StringList> '}') |
+    'ReqCapByPseudoCode' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByFlowChart' (<Identifier> | '{' <IdentifierList> '}')
+
+<IdentifierList> ::= <Identifier> (',' <Identifier>)*
+<StringList> ::= <String> (',' <String>)*
+
 <TimeConsDef>     ::= 'Finished' 'Within' <Time>
 
 // 原子指令模板

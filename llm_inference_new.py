@@ -16,8 +16,8 @@ res_output_dir = "D:/LLM/SpaceRDL/RDLAPI/RDLAPI/results"
 client = OpenAI(
     # api_key='sk-1a1093d7857d40dcb93878fe8b21e7bf',
     # base_url="https://chat.ecnu.edu.cn/open/api/v1",
-    api_key = "sk-870beb4daf0542938e2877fd88d77c45",
-    base_url = "https://api.deepseek.com" ## deepseek
+    api_key="sk-870beb4daf0542938e2877fd88d77c45",
+    base_url="https://api.deepseek.com"  ## deepseek
 )
 
 
@@ -64,6 +64,7 @@ def generate_prompt(requirement, example):
     prompt1 = prompt1.replace("{requirement}", requirement)
     return prompt1
 
+
 def extract_json(response_content):
     # 匹配 ```json 包裹的代码块
     json_block_pattern = r"```json\s*(\{.*?\}|\[.*?\])\s*```"
@@ -88,6 +89,7 @@ def extract_json(response_content):
     # 如果还是没有匹配到有效 JSON，返回None
     return None
 
+
 def get_spaceRDL(text):
     # match = re.search(r'SpaceRDL:\s*(.*?)\s*END', text, re.DOTALL | re.IGNORECASE)
     # if not match:
@@ -100,22 +102,31 @@ def get_spaceRDL(text):
     return dsl
 
 
-
 def parse_automic_func(text):
     # 定义正则表达式
     time_constraint_pattern = r'(?P<time_constraint>\b(?:At|In|After|Over)\s*\([^\)]*\)|\b(?:In|After)\s*\[\s*[^]]*\s*\])'
     time_cons_def_pattern = r'(?P<time_cons_def>\bFinished\s+Within\s+\S+)'
-    req_cap_by_form_pattern = r'\bReqCapBy(?:Table|Formula|NL|PseudoCode|FlowChart)\s+(?P<req_cap_by_form>\S+)'
+    # req_cap_by_form_pattern = r'\bReqCapBy(?:Table|Formula|NL|PseudoCode|FlowChart)\s+(?P<req_cap_by_form>\S+)'
+    req_cap_by_form_pattern = r'\bReqCapBy(?:Table|Formula|NL|PseudoCode|FlowChart)\s+(?P<req_cap_by_form>\{[^}]+\}|\S+)'
 
     # 顺序匹配
     tc_match = re.search(time_constraint_pattern, text)
     rc_match = re.search(req_cap_by_form_pattern, text)
     tcd_match = re.search(time_cons_def_pattern, text)
 
+    if rc_match:
+        req1 = rc_match.group("req_cap_by_form").replace(";", "")
+        if req1.startswith("{") and req1.endswith("}"):
+            req = [v.strip() for v in req1[1:-1].split(",")]
+        else:
+            req = [req1.strip()]
+    else:
+        req = []
+
     # 初始化结果
     result = {
         "TimeConstraint": tc_match.group("time_constraint") if tc_match else None,
-        "ReqCapByForm": rc_match.group("req_cap_by_form").replace(";", "") if rc_match else None,
+        "ReqCapByForm": req,
         "TimeConsDef": tcd_match.group("time_cons_def") if tcd_match else None,
         "CoreFunc": None,
     }
@@ -127,7 +138,7 @@ def parse_automic_func(text):
             core = core.replace(m.group(0), '')
     # 清理多余空格
     result["CoreFunc"] = re.sub(r'\s{2,}', ' ', core).strip()
-    result["CoreFunc"] = result["CoreFunc"].replace(";","")
+    result["CoreFunc"] = result["CoreFunc"].replace(";", "")
     return result
 
 
@@ -144,8 +155,8 @@ def parse_core_func(core_func_text):
     if not match:
         return {
             "PatternName": None,
-            "Arg1": None,
-            "Arg2": None
+            "Arg1": [],
+            "Arg2": []
         }
 
     def extract_list(arg):
@@ -168,7 +179,7 @@ def do_match(output, answer, output_req, answer_req):
     if output['PatternName'] != answer['PatternName']:
         return 2
     elif set(output["Arg1"]) == set(answer["Arg1"]) and set(output["Arg2"]) == set(answer["Arg2"]):
-        if output_req == answer_req:
+        if set(output_req) == set(answer_req):
             return 0
         else:
             return 1
@@ -223,7 +234,6 @@ if __name__ == "__main__":
     output_list = []
     answer_list = []
 
-
     match_res = [0, 0, 0]
     predict_list = []
 
@@ -263,7 +273,8 @@ if __name__ == "__main__":
         # 匹配类别
         match_type = do_match(output_rdl_core, answer_rdl_core, output_rdl['ReqCapByForm'], answer_rdl['ReqCapByForm'])
         if match_type == 0:
-            if output_rdl['TimeConstraint'] != answer_rdl['TimeConstraint'] or output_rdl['TimeConsDef'] != answer_rdl['TimeConsDef']:
+            if output_rdl['TimeConstraint'] != answer_rdl['TimeConstraint'] or output_rdl['TimeConsDef'] != answer_rdl[
+                'TimeConsDef']:
                 match_type = 1
         match_res[match_type] += 1
 
@@ -289,7 +300,8 @@ if __name__ == "__main__":
         print("ROUGE 分数:")
         print(f"ROUGE-1 F1: {rouge1_f1:.4f}, ROUGE-2 F1: {rouge2_f1:.4f}, ROUGE-L F1: {rougeL_f1:.4f}")
         print("BLEU 分数:")
-        print(f"BLEU: {bleu_score:.4f}, 1-gram: {bleu_1gram:.4f}, 2-gram: {bleu_2gram:.4f}, batch: {bleu_score_batch:.4f}")
+        print(
+            f"BLEU: {bleu_score:.4f}, 1-gram: {bleu_1gram:.4f}, 2-gram: {bleu_2gram:.4f}, batch: {bleu_score_batch:.4f}")
         print(f"match: {match_type}")
 
         # 构建输出路径
@@ -308,16 +320,14 @@ if __name__ == "__main__":
     print("完全匹配：", match_res[0] / len(output_list))
     print("可配置：", match_res[1] / len(output_list))
     print("不匹配：", match_res[2] / len(output_list))
-    print(f"BLEU 平均：{sum(bleu_scores)/len(bleu_scores):.4f}")
-    print(f"1-gram BLEU 平均：{sum(bleu_1grams)/len(bleu_1grams):.4f}")
-    print(f"2-gram BLEU 平均：{sum(bleu_2grams)/len(bleu_2grams):.4f}")
-    print(f"batch BLEU 平均：{sum(belu_scores_batch)/len(belu_scores_batch):.4f}")
-    print(f"ROUGE-1 F1 平均：{sum(rouge_1s)/len(rouge_1s):.4f}")
-    print(f"ROUGE-2 F1 平均：{sum(rouge_2s)/len(rouge_2s):.4f}")
-    print(f"ROUGE-L F1 平均：{sum(rouge_Ls)/len(rouge_Ls):.4f}")
+    print(f"BLEU 平均：{sum(bleu_scores) / len(bleu_scores):.4f}")
+    print(f"1-gram BLEU 平均：{sum(bleu_1grams) / len(bleu_1grams):.4f}")
+    print(f"2-gram BLEU 平均：{sum(bleu_2grams) / len(bleu_2grams):.4f}")
+    print(f"batch BLEU 平均：{sum(belu_scores_batch) / len(belu_scores_batch):.4f}")
+    print(f"ROUGE-1 F1 平均：{sum(rouge_1s) / len(rouge_1s):.4f}")
+    print(f"ROUGE-2 F1 平均：{sum(rouge_2s) / len(rouge_2s):.4f}")
+    print(f"ROUGE-L F1 平均：{sum(rouge_Ls) / len(rouge_Ls):.4f}")
     # print(f"CodeBLEU 平均：{sum(codebleu_scores)/len(codebleu_scores):.4f}")
-
-
 
     # 构建指标汇总字典
     metric_result = {
@@ -327,13 +337,12 @@ if __name__ == "__main__":
         "BLEU": round(sum(bleu_scores) / len(bleu_scores), 4),
         "BLEU-1": round(sum(bleu_1grams) / len(bleu_1grams), 4),
         "BLEU-2": round(sum(bleu_2grams) / len(bleu_2grams), 4),
-        "batch-BLEU":round(sum(belu_scores_batch) / len(belu_scores_batch), 4),
+        "batch-BLEU": round(sum(belu_scores_batch) / len(belu_scores_batch), 4),
         "ROUGE-1 F1": round(sum(rouge_1s) / len(rouge_1s), 4),
         "ROUGE-2 F1": round(sum(rouge_2s) / len(rouge_2s), 4),
         "ROUGE-L F1": round(sum(rouge_Ls) / len(rouge_Ls), 4),
         # "CodeBLEU": round(sum(codebleu_scores) / len(codebleu_scores), 4)
     }
-
 
     # 输出路径
     metric_output_path = os.path.join(output_dir, "metric.json")

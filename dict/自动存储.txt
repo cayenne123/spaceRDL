@@ -8,11 +8,7 @@
     <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
     <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
 ) <ReqCapByForm>? <TimeConsDef>?
-<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
-                      'ReqCapByFormula' <Identifier> | 
-                      'ReqCapByNL' <String> | 
-                      'ReqCapByPseudoCode' <Identifier> | 
-                      'ReqCapByFlowChart' <Identifier>
+
 
 ##Device Library##
 None

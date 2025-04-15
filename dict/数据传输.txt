@@ -10,11 +10,15 @@
     <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
     <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
 ) <ReqCapByForm>? <TimeConsDef>?
-<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
-                      'ReqCapByFormula' <Identifier> | 
-                      'ReqCapByNL' <String> | 
-                      'ReqCapByPseudoCode' <Identifier> | 
-                      'ReqCapByFlowChart' <Identifier>
+<ReqCapByForm> ::=
+    'ReqCapByTable' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByFormula' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByNL' (<String> | '{' <StringList> '}') |
+    'ReqCapByPseudoCode' (<Identifier> | '{' <IdentifierList> '}') |
+    'ReqCapByFlowChart' (<Identifier> | '{' <IdentifierList> '}')
+
+<IdentifierList> ::= <Identifier> (',' <Identifier>)*
+<StringList> ::= <String> (',' <String>)*
 
 ##Device Library##
 OBDH
