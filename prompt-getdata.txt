@@ -1,0 +1,118 @@
+You are an expert on Domain Specific Language Generation, and you need to write formal requirements with a domain-specific language for the given natural language requirements. First, you should write a grammar that contains all the necessary BNF rules. Then, you should write formal requirements that conform to your predicted rules.
+G: 
+<Literal>         ::= <Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>
+<Number>          ::= '0' | [1-9][0-9]*
+<Decimal>         ::= <Number> '.' [0-9]+
+<BoolConst>       ::= 'true' | 'false'
+<HexConst>        ::= '0x' [0-9a-fA-F]+
+<BinConst>        ::= '0' | '1'
+<StringConst>     ::= '"' (可打印字符)* '"' 
+<Time>            ::= <Number> ('s' | 'ms' | 'us')
+
+<Note>            ::= '/*' <StringConst> '*/'
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]* 
+<DataType>    ::= 'Int' | 'Unsigned Int' | 'Float' | 'Double' | 'Bool' | 'String' | 'TR32' <DataType>
+
+<ArithmeticSymbol> ::= '+' | '-' | '*' | '/' | '%' | '^'
+<LogicSymbol>      ::= 'and' | 'or' | 'not'
+<CompareSymbol>    ::= '<' | '<=' | '==' | '>=' | '>' | '!='
+
+<BoolExpr>        ::= <SingleBoolExpr> (('and' | 'or') <SingleBoolExpr>)*
+<SingleBoolExpr>  ::= <BoolConst> | '(' <Identifier> <CompareSymbol> <Literal> ')'
+
+// 系统组成运行平台
+<SystemDef>       ::= 'System' '{' <CompDef>  <ControlDef>  <ConnectDef>* '}'
+<CompDef>         ::= 'Device' <SubType> <DeviceName> '{' <CompAttr> '}'
+<SubType>         ::= <Identifier>
+<DeviceName> ::= <Identifier>
+
+<CompAttr>        ::= ('GroupNum' ':' <UNSIGNEDNUMBER>)? <PortDef>+ ('ResponseTime' ':' <Time>)?
+<PortDef>         ::= 'Port' <PortName> '(' <HEX_CONST> ')' ':' <PortAttr> (',' <PortAttr>)*
+<PortAttr>        ::= <Identifier> ',' <Identifier>  // 数据名与协议表
+
+// 控制计算机定义
+<ControlDef>      ::= 'Controller' <ControllerType> <ControllerName> '{' <TimerDef> <ControlPeriod> <InterruptDef> '}'
+<ControllerType>  ::= <Identifier>
+<ControllerName>  ::= <Identifier>
+<TimerDef>        ::= 'Timer' <Identifier> '{' 'Interval' ':' <Time> 'RegAddr' ':' <HEX_CONST> '}'
+<ControlPeriod>   ::= 'ControlPeriod' ':' <Time>
+<InterruptDef>    ::= 'Interrupt' <Identifier> '{' 'Trigger' ':' <TimerDef> '}'
+
+// 数据声明
+<DataDeclaration> ::= ('DeviceDataDeclaration' | 'BusinessDataDeclaration') '{' <VarDef>+ '}'
+<VarDef>          ::= ('TR32' <DataType>)? <Identifier> ('[' <Number> ']')? (<TransTable>)? (':' <InitValue>)? ';'
+<TransTable>      ::= <Identifier>  // 转换表引用
+<InitValue>       ::= <Literal> | <Identifier>
+
+// 依赖关系
+<Dependencies>    ::= 'Dependencies' '{' (<DataDependency> | <ControlDependency>)+ '}'
+<DataDependency>  ::= <Identifier> '{' <DataSet> '}' 'DependsOn' <Identifier> ';'
+<ControlDependency> ::= <Identifier> '{' <DeviceSet> '}' 'DependsOn' <Identifier> ';'
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+<DeviceSet>       ::= <Identifier> (',' <Identifier>)*
+
+// 操作性语句
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<TimeConstraint>  ::= ('At' '(' <Time> (',' 'Period')? ')' | 
+                      'In' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 
+                      'After' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 
+                      'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')')
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+<TimeConsDef>     ::= 'Finished' 'Within' <Time>
+
+// 原子指令模板
+<InitFunc>        ::= 'Init' <PortName> '{' <Config> '}'
+<SetFunc>         ::= 'Set' <Identifier> '=' <Expression>
+<GetDataFunc>     ::= 'GetData' <DeviceName> '{' <DataSet> '}'
+<SendDataFunc>    ::= 'SendData'  <DeviceName>  '{' <DataSet> '}'
+<ComputeFunc>     ::= ('CalEnv' | 'ProVId' | 'DetAtt' | 'CalTar' | 'CalCtrl' | 'SwitchMode') 
+                      <OutputData> <InputData>
+<ProTMFunc>       ::= 'ProTM' <Identifier> '{' <DataSet> '}'
+<ProTCFunc>       ::= 'ProTC' <Identifier> '{' <DataSet> '}'
+
+// 组合语句
+<CompositeFunc>   ::= 'Composite' <Identifier> '{' <Statement>+ '}' <TimeConsDef>?
+<Statement>       ::= <AutomicFunc> ';' | <CompositeFunc> | <IfStatement> | <Switch> | <Loop>
+<IfStatement>     ::= 'If' '(' <BoolExpr> ')' '{' <Statement>+ '}' ('Else' '{' <Statement>+ '}')?
+<Switch>          ::= 'Switch' '(' <Identifier> ')' '{' <Case>+ '}'
+<Case>            ::= 'Case' <Literal> ':' '{' <Statement>+ '}'
+<Loop>            ::= 'While' '(' <BoolExpr> ')' '{' <Statement>+ '}'
+
+D:
+Sensor：DSS，Gyro3F
+Actuator： JET
+ExtComputer：OBDH
+Controller：AOCC
+
+x: 陀螺数据采集。调用条件为：160ms周期调用，输入为串口操作地址，输出为加电状态和角速度模拟量。
+G(x):
+<GetDataFunc>     ::= 'GetData' <DeviceName> '{' <DataSet> '}'
+<DeviceName> ::= <Identifier>
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+D(x): Gyro3F
+
+y:GetData gyro1 {deltG[9],GyroPowerState[9]} ReqCapByTable Gyro_TransTable;
+x: {userRequirement}
+G(x):
+
+
+['Set currentmode RDSM', 'Init timer32 1;', 'At(160ms, Period) ProTC OBDH {currentmode} ReqCapByTable ProTable_TC', 'GetData Gyro3F {GyroPowerState[9],deltG[9]} ReqCapByTable Gyro_TransTable;', 'GetData DSS {dssPower, viewCode, AttigDss[2]} ReqCapByTable SunSensor_TransTable;', 'At(160ms, Period) GetData JET {JetPowerState} ReqCapByTable Thruster_Data_Acquisition_Table;', 'At(160ms, Period) DetAtt {attiang, attirate, currentmode} {deltG, AttigDss, viewCode} ReqCapByTable B3Table;', 'At(160ms, Period) ProTM OBDH {currentmode, attiang, attirate} ReqCapByTable ProTable_TM;']
+['Set currentmode RDSM;', 'Init timer32 1;', 'ProTC OBDH {currentmode} ReqCapByTable ProTable_TC;', 'GetData Gyro3F {     deltG[9],      GyroPowerState[9] } ReqCapByTable Gyro_DataFormat_Tables;', 'GetData DSS {     DSSPowerState[9],      viewCode,      AttigDss[2] } ReqCapByTable DSS_AcquisitionTable;', 'GetData JET {JetPowerState} ReqCapByTable Thruster_Data_Table;', 'Compute {attiang, attirate, currentmode} {deltG[9], AttigDss[2], viewCode} ReqCapByTable B3Table;', 'ProTM OBDH1 {currentmode, attiang, attirate} ReqCapByTable ProTable_TM;']

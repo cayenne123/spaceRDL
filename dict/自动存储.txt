@@ -1,0 +1,24 @@
+##Input Requirement## 
+设置初始太阳可见标志为不可见
+
+##BNF Grammar##
+<SetFunc>         ::=<SetFunc> ::= 'Set' <Identifier> <Identifier>
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]* 
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+
+##Device Library##
+None
+
+##Data Dictionary##
+viewcode
+
+##Output DSL##
+Set viewcode false;

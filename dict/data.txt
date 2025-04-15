@@ -1,0 +1,39 @@
+<DataSet>
+三轴控制量：pulseWidth
+三轴姿态角：attiang
+三轴角速度：attirate
+目标角度：attiangT
+目标角速度：attirateT
+太阳可见标志：viewCode
+工作模式字：currentmode
+陀螺测量角速度：deltG[9]
+太阳敏感器采集的姿态角度：AttigDss[2]
+太阳敏感器加断电开关信号：dssPower
+推力器开关信号：jetPower
+陀螺开关信号：gyroPower
+推力器喷气间隔时间：jetT
+陀螺加电状态：GyroPowerState[9]
+推力器加电状态: JetPowerState
+速率阻尼：RDSM
+俯仰搜索：PASM
+滚动搜索：RASM
+对日巡航：CSM
+
+<ReqCapByForm> 
+陀螺数据剔野处理: B1Table
+计算三轴角速度、计算陀螺角度积分: B2Table
+确定卫星姿态角度和角速度: B3Table
+三轴姿态角限幅处理，计算得到三轴控制量: B4Table
+模式切换条件表: B5Table
+遥控数据管理计算机数据格式表: ProTable_TC
+遥测数据管理计算机数据格式表: ProTable_TM
+陀螺加断电指令表: gyro_proTable1
+陀螺策略数据获取指令表: gyro_proTable2
+陀螺脉冲计数和加电状态协议表: gyro_proTable3
+太阳敏感器输出使能协议表: dss_proTable1
+太阳敏感器可见标志和电源状态协议表: dss_proTable2
+太阳敏感器角度模拟量协议表: dss_proTable3
+推力器输出数据协议表: jet_proTable1
+推力器电源状态协议表: jet_proTable2
+陀螺数据转换表: Gyro_TransTable
+太阳敏感器数据转换表: Dss_TransTable

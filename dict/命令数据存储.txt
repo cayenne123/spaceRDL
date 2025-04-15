@@ -1,0 +1,26 @@
+##Input Requirement## 
+遥控处理。功能描述：通过串口接收地面指令，进行指令校验，设置陀螺的基准值。输入：遥控接收串口地址。输出：陀螺的基准值。 参照遥控指令格式信息表
+
+##BNF Grammar##
+<ProTCFunc>       ::= 'ProTC' <DeviceName> '{' <DataSet> '}'
+<DeviceName> ::= <Identifier>
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+
+##Device Library##
+OBDH
+
+##Data Dictionary##
+gyro_standard
+
+##Output DSL##
+ProTC OBDH {gyro_standard} ReqCapByTable ProTable_TC;

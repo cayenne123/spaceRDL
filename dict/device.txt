@@ -1,0 +1,4 @@
+Sensor：太阳敏感器(DSS)，三浮陀螺(Gyro3F)
+Actuator： 推力器(JET)
+ExtComputer：数管计算机(OBDH)
+Controller：中央控制单元(AOCC)

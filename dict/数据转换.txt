@@ -1,0 +1,31 @@
+##Input Requirement## 
+姿态确定。功能描述：卫星三轴姿态确定。输入：陀螺测量角速度，太阳敏感器采集的姿态角度，太阳可见标志。输出：三轴姿态角度、三轴角速度，工作模式字。处理：参照姿态确定表格
+
+##BNF Grammar##
+<ComputeFunc>     ::= ('CalEnv' | 'ProVId' | 'DetAtt' | 'CalTar' | 'CalCtrl' | 'SwitchMode') 
+                      <OutputData> <InputData>
+
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+
+##Device Library##
+None
+
+##Data Dictionary##
+attiang
+attirate
+currentmode
+attiangG
+viewCode
+AttigDss[2]
+
+##Output DSL##
+Compute {attiang, attirate, currentmode} {attiangG, viewCode, AttigDss[2]} ReqCapByTable B3Table;
+

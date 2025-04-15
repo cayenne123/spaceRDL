@@ -1,0 +1,27 @@
+##Input Requirement## 
+陀螺数据采集。功能描述：陀螺数据采集。输入：串口操作地址。输出：加电状态、角速度模拟量。陀螺数据采集具体数据传输格式见陀螺取数指令格式表和陀螺测量数据格式表
+
+##BNF Grammar##
+<GetDataFunc>     ::= 'GetData' <DeviceName> '{' <DataSet> '}'
+<DeviceName> ::= <Identifier>
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+
+##Device Library##
+Gyro3F
+
+##Data Dictionary##
+GyroPowerState[9]
+deltG[9]
+
+##Output DSL##
+GetData Gyro3F {deltG[9], GyroPowerState[9]} ReqCapByTable Gyro_TransTable;

@@ -1,0 +1,118 @@
+### Task Definition ###
+你是一位专精于领域专用语言 (Domain Specific Language, DSL) 生成的专家。请根据下面的自然语言需求，执行以下步骤来生成满足需求的正式化DSL描述：
+
+1. **识别并描述BNF语法规则**  
+   - 根据提供的BNF语法指南，列出本次生成DSL所需的BNF规则，并做简要说明。  
+
+2. **列出所需设备与数据字典**  
+   - 从给定的“设备库 (Device Library)”与“数据字典 (Data Dictionary)”中，选取或组合所有在DSL中会用到的条目。  
+
+3. **生成符合BNF规则的正式需求描述**  
+   - 在书写过程中必须参照已经列出的BNF规则、设备库以及数据字典。  
+   - 必须使用`<automicfunc>`模板来描述行为；若存在`<timeconstraint>`，应置于`<automicfunc>`开始位置。  
+
+4. **输出格式要求**  
+   - 输出必须是JSON格式，结构如下所示：
+     ```json
+     {
+       "BNF Grammar": { ... },
+       "Device Library": { ... },
+       "Data Dictionary": { ... },
+       "Output DSL": { ... }
+     }
+     ```
+   - 除必要的注释和字段说明外，请勿输出多余信息。
+   
+###BNF Grammar to Use###
+<Literal>         ::= <Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>
+<Number>          ::= '0' | [1-9][0-9]*
+<Decimal>         ::= <Number> '.' [0-9]+
+<BoolConst>       ::= 'true' | 'false'
+<HexConst>        ::= '0x' [0-9a-fA-F]+
+<BinConst>        ::= '0' | '1'
+<StringConst>     ::= '"' (可打印字符)* '"' 
+<Time>            ::= <Number> ('s' | 'ms' | 'us')
+
+<Note>            ::= '/*' <StringConst> '*/'
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]* 
+<DataType>    ::= 'Int' | 'Unsigned Int' | 'Float' | 'Double' | 'Bool' | 'String' | 'TR32' <DataType>
+
+<ArithmeticSymbol> ::= '+' | '-' | '*' | '/' | '%' | '^'
+<LogicSymbol>      ::= 'and' | 'or' | 'not'
+<CompareSymbol>    ::= '<' | '<=' | '==' | '>=' | '>' | '!='
+
+<BoolExpr>        ::= <SingleBoolExpr> (('and' | 'or') <SingleBoolExpr>)*
+<SingleBoolExpr>  ::= <BoolConst> | '(' <Identifier> <CompareSymbol> <Literal> ')'
+
+// 系统组成运行平台
+<SystemDef>       ::= 'System' '{' <CompDef>  <ControlDef>  <ConnectDef>* '}'
+<CompDef>         ::= 'Device' <SubType> <DeviceName> '{' <CompAttr> '}'
+<SubType>         ::= <Identifier>
+<DeviceName> ::= <Identifier>
+
+<CompAttr>        ::= ('GroupNum' ':' <UNSIGNEDNUMBER>)? <PortDef>+ ('ResponseTime' ':' <Time>)?
+<PortDef>         ::= 'Port' <PortName> '(' <HEX_CONST> ')' ':' <PortAttr> (',' <PortAttr>)*
+<PortAttr>        ::= <Identifier> ',' <Identifier>  // 数据名与协议表
+
+// 控制计算机定义
+<ControlDef>      ::= 'Controller' <ControllerType> <ControllerName> '{' <TimerDef> <ControlPeriod> <InterruptDef> '}'
+<ControllerType>  ::= <Identifier>
+<ControllerName>  ::= <Identifier>
+<TimerDef>        ::= 'Timer' <Identifier> '{' 'Interval' ':' <Time> 'RegAddr' ':' <HEX_CONST> '}'
+<ControlPeriod>   ::= 'ControlPeriod' ':' <Time>
+<InterruptDef>    ::= 'Interrupt' <Identifier> '{' 'Trigger' ':' <TimerDef> '}'
+
+// 数据声明
+<DataDeclaration> ::= ('DeviceDataDeclaration' | 'BusinessDataDeclaration') '{' <VarDef>+ '}'
+<VarDef>          ::= ('TR32' <DataType>)? <Identifier> ('[' <Number> ']')? (<TransTable>)? (':' <InitValue>)? ';'
+<TransTable>      ::= <Identifier>  // 转换表引用
+<InitValue>       ::= <Literal> | <Identifier>
+
+// 依赖关系
+<Dependencies>    ::= 'Dependencies' '{' (<DataDependency> | <ControlDependency>)+ '}'
+<DataDependency>  ::= <Identifier> '{' <DataSet> '}' 'DependsOn' <Identifier> ';'
+<ControlDependency> ::= <Identifier> '{' <DeviceSet> '}' 'DependsOn' <Identifier> ';'
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+<DeviceSet>       ::= <Identifier> (',' <Identifier>)*
+
+// 操作性语句
+<TimeConstraint>  ::= ('At' '(' <Time> (',' 'Period')? ')' | 
+                      'In' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 
+                      'After' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 
+                      'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')')
+
+<ReqCapByForm>    ::= 'ReqCapByTable' <Identifier> | 
+                      'ReqCapByFormula' <Identifier> | 
+                      'ReqCapByNL' <String> | 
+                      'ReqCapByPseudoCode' <Identifier> | 
+                      'ReqCapByFlowChart' <Identifier>
+<TimeConsDef>     ::= 'Finished' 'Within' <Time>
+
+// 原子指令模板
+<InitFunc>        ::= 'Init' <PortName> '{' <Config> '}'
+<SetFunc>         ::= 'Set' <Identifier> <Expression>
+<GetDataFunc>     ::= 'GetData' <DeviceName> '{' <DataSet> '}'
+<SendDataFunc>    ::= 'SendData'  <DeviceName>  '{' <DataSet> '}'
+<ComputeFunc>     ::= 'Compute' <OutputData> <InputData>
+<ProTMFunc>       ::= 'ProTM' <Identifier> '{' <DataSet> '}'
+<ProTCFunc>       ::= 'ProTC' <Identifier> '{' <DataSet> '}'
+
+<AutomicFunc>     ::= <TimeConstraint>? ( 
+    <InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | 
+    <ComputeFunc> | <ProTMFunc> | <ProTCFunc> 
+) <ReqCapByForm>? <TimeConsDef>?
+
+###Device Library###
+{device}
+
+###Data Dictionary###
+{data_dictionary}
+
+###Example###
+{example}
+
+###Input Requirement###
+{requirement}
+
+###Output DSL###
