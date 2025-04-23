@@ -377,7 +377,7 @@ def cross_validation_training(data_dir, n_splits=10):
                         predict_true_number += 1
                     if true_labels[j]==1:
                         true_number+=1
-                pass_at_k_best_count+=predict_true_number/min(true_number, total_labels = len(functional_keys))
+                pass_at_k_best_count+=predict_true_number/min(true_number, k)
 
             pass_at_1 = pass_at_1_count / total_samples
             pass_at_k = pass_at_k_count / total_samples
@@ -439,7 +439,7 @@ def cross_validation_training(data_dir, n_splits=10):
 
 
 # 设置数据文件夹路径
-data_dir = 'splits'
+data_dir = 'classifier/splits'
 
 # 执行十倍交叉验证训练
 cross_validation_training(data_dir)

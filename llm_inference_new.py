@@ -9,15 +9,16 @@ from eval_tool.bleu_compute import calculate_bleu_scores
 from eval_tool.codebleu_compute import codebleu_compute
 import json
 import os
+import codecs
 
 LLM_Model = "deepseek-chat"
 shot_num = 1
-res_output_dir = "D:/LLM/SpaceRDL/RDLAPI/RDLAPI/results"
+res_output_dir = "./results"
 client = OpenAI(
     # api_key='sk-1a1093d7857d40dcb93878fe8b21e7bf',
     # base_url="https://chat.ecnu.edu.cn/open/api/v1",
-    api_key="sk-870beb4daf0542938e2877fd88d77c45",
-    base_url="https://api.deepseek.com"  ## deepseek
+    api_key = "sk-870beb4daf0542938e2877fd88d77c45",
+    base_url = "https://api.deepseek.com" ## deepseek
 )
 
 
@@ -57,13 +58,26 @@ def open_file(file_path):
 
 
 def generate_prompt(requirement, example):
-    prompt1 = open_file('D:/LLM/SpaceRDL/RDLAPI/RDLAPI/prompt-new.txt')
+    prompt1 = open_file('D:/LLM-code/spaceRDL/prompt-new.txt')
     prompt1 = prompt1.replace("{device}", device)
     prompt1 = prompt1.replace("{data_dictionary}", dict_data)
     prompt1 = prompt1.replace("{example}", example)
     prompt1 = prompt1.replace("{requirement}", requirement)
+    prompt1 = prompt1.replace("{bnf_grammar}", bnf_grammar)
     return prompt1
 
+
+def fix_encoding(obj):
+    if isinstance(obj, dict):
+        return {fix_encoding(k): fix_encoding(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [fix_encoding(i) for i in obj]
+    elif isinstance(obj, str):
+        try:
+            return obj.encode('latin1').decode('utf-8')
+        except:
+            return obj
+    return obj
 
 def extract_json(response_content):
     # 匹配 ```json 包裹的代码块
@@ -89,20 +103,42 @@ def extract_json(response_content):
     # 如果还是没有匹配到有效 JSON，返回None
     return None
 
-
 def get_spaceRDL(text):
-    # match = re.search(r'SpaceRDL:\s*(.*?)\s*END', text, re.DOTALL | re.IGNORECASE)
-    # if not match:
-    #     return "[ERROR] SpaceRDL not found"
-    # return match.group(1).strip()
     data = extract_json(text)
+    if not data or "Output DSL" not in data:
+        return "[ERROR] Output DSL not found"
+    
+    dsl_block = data["Output DSL"]
 
-    # 提取 "requirement" 字段
-    dsl = data["Output DSL"]
-    return dsl
+    if isinstance(dsl_block, dict):
+        # 如果包含 "DSL code" 字段，则直接取值
+        if "DSL code" in dsl_block:
+            dsl_text = dsl_block["DSL code"]
+        else:
+            # 否则取第一个 key（DeepSeek 常见结构）
+            dsl_text = next(iter(dsl_block.keys()))
+    else:
+        dsl_text = str(dsl_block)
+
+    return dsl_text.strip()
+
 
 
 def parse_automic_func(text):
+    if isinstance(text, dict):
+        # 提取第一个值为字符串的字段
+        text_values = [v for v in text.values() if isinstance(v, str) and v.strip()]
+        if text_values:
+            text = text_values[0]
+        else:
+            # 所有 value 都不是合法字符串，直接返回空结果
+            return {
+                "TimeConstraint": None,
+                "ReqCapByForm": None,
+                "TimeConsDef": None,
+                "CoreFunc": None,
+            }
+
     # 定义正则表达式
     time_constraint_pattern = r'(?P<time_constraint>\b(?:At|In|After|Over)\s*\([^\)]*\)|\b(?:In|After)\s*\[\s*[^]]*\s*\])'
     time_cons_def_pattern = r'(?P<time_cons_def>\bFinished\s+Within\s+\S+)'
@@ -187,8 +223,23 @@ def do_match(output, answer, output_req, answer_req):
         return 2
 
 
-def smart_tokenize(text: str):
-    # 用正则切分：字母/数字 和 标点分开
+def smart_tokenize(text):
+    """
+    安全地进行 token 切分：
+    - 如果 text 是 dict，则尝试提取其中第一个非空字符串值
+    - 然后使用正则进行分词
+    """
+    if isinstance(text, dict):
+        for v in text.values():
+            if isinstance(v, str) and v.strip():
+                text = v
+                break
+        else:
+            return []  # 所有值都不是字符串，返回空 token 列表
+
+    if not isinstance(text, str):
+        return []
+
     return re.findall(r"\w+|\S", text)
 
 
@@ -217,7 +268,7 @@ def compute_bleu_batch(candidates, references):
 
 
 if __name__ == "__main__":
-    file_path = 'D:/LLM/SpaceRDL/RDLAPI/RDLAPI/test.xlsx'
+    file_path = 'D:/LLM-code/spaceRDL/test.xlsx'
     df = pd.read_excel(file_path, sheet_name='Sheet1')
 
     # 提取“description”和“pattern” 和"answer"三列
@@ -229,8 +280,9 @@ if __name__ == "__main__":
 
     selected_columns = df[columns_to_clean].to_dict(orient='records')
 
-    device = open_file('D:/LLM/SpaceRDL/RDLAPI/RDLAPI/dict/device.txt')
-    dict_data = open_file('D:/LLM/SpaceRDL/RDLAPI/RDLAPI/dict/data.txt')
+    device = open_file('D:/LLM-code/spaceRDL/dict/device.txt')
+    dict_data = open_file('D:/LLM-code/spaceRDL//dict/data.txt')
+    bnf_grammar = open_file('D:/LLM-code/spaceRDL/dict/bnf_grammar.txt')
     output_list = []
     answer_list = []
 
@@ -251,7 +303,7 @@ if __name__ == "__main__":
         user_requirement = column['description']
         answer_list.append(column['answer'])
         pattern = column['pattern']
-        pattern_example = open_file('D:/LLM/SpaceRDL/RDLAPI/RDLAPI/dict/' + pattern + '.txt')
+        pattern_example = open_file('./dict/' + pattern + '.txt')
         prompt = generate_prompt(user_requirement, pattern_example)
         res = ask_llm(prompt)
         spaceRDL = get_spaceRDL(res)
@@ -300,8 +352,7 @@ if __name__ == "__main__":
         print("ROUGE 分数:")
         print(f"ROUGE-1 F1: {rouge1_f1:.4f}, ROUGE-2 F1: {rouge2_f1:.4f}, ROUGE-L F1: {rougeL_f1:.4f}")
         print("BLEU 分数:")
-        print(
-            f"BLEU: {bleu_score:.4f}, 1-gram: {bleu_1gram:.4f}, 2-gram: {bleu_2gram:.4f}, batch: {bleu_score_batch:.4f}")
+        print(f"BLEU: {bleu_score:.4f}, 1-gram: {bleu_1gram:.4f}, 2-gram: {bleu_2gram:.4f}, batch: {bleu_score_batch:.4f}")
         print(f"match: {match_type}")
 
         # 构建输出路径

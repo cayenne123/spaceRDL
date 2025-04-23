@@ -1,0 +1,86 @@
+[
+  {
+    "Requirement": "设置初始工作模式字为速率阻尼；",
+    "Correct answer": "Set currentmode RDSM",
+    "LLM inference": "Set currentmode RDSM",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Set\",\n  \"BNF Grammar\": {\n    \"SetFunc\": \"'Set' <Identifier> <Expression>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Expression\": \"<Literal>\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"中央控制单元(AOCC)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"工作模式字：currentmode, 速率阻尼：RDSM\"\n  },\n  \"Output DSL\": \"Set currentmode RDSM\"\n}\n```"
+  },
+  {
+    "Requirement": "开32ms定时器中断。功能描述：通过向定时控制寄存器GTCR0的D[0]位写一次‘1’，可启动定时器以产生连续的32ms周期中断信号，寄存器GTCR0的地址为0x8083。调用条件：软件初始化后",
+    "Correct answer": "Init timer32 1",
+    "LLM inference": "Init",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Init\",\n  \"BNF Grammar\": {\n    \"InitFunc\": \"'Init' <PortName> '{' <Config> '}'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Controller\": \"中央控制单元(AOCC)\"\n  },\n  \"Data Dictionary\": {},\n  \"Output DSL\": {\n    \"Init\": \"Init GTCR0 { Interval: 32ms, RegAddr: 0x8083, Config: 'Write 1 to D[0]' }\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "遥控处理。功能描述：通过串口接收地面指令，进行指令校验，设置卫星工作模式字。输入：遥控接收串口地址。输出：下一周期工作模式字。 参照遥控数据管理计算机数据格式表",
+    "Correct answer": "ProTC OBDH {currentmode} ReqCapByTable ProTable_TC",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"ProTC\",\n  \"BNF Grammar\": {\n    \"ProTCFunc\": \"'ProTC' <Identifier> '{' <DataSet> '}'\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"ExtComputer\": \"数管计算机(OBDH)\"\n  },\n  \"Data Dictionary\": {\n    \"工作模式字\": \"currentmode\",\n    \"遥控数据管理计算机数据格式表\": \"ProTable_TC\"\n  },\n  \"Output DSL\": {\n    \"ProTC OBDH {currentmode} ReqCapByTable ProTable_TC\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "陀螺数据采集。功能描述：陀螺数据采集。输入：串口操作地址。输出：加电状态、角速度模拟量。陀螺数据采集具体数据传输格式见陀螺数据转换表",
+    "Correct answer": "GetData Gyro3F {deltG[9], GyroPowerState[9]} ReqCapByTable Gyro_TransTable",
+    "LLM inference": "GetDataFunc",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"GetData\",\n  \"BNF Grammar\": {\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"三浮陀螺(Gyro3F)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"GyroPowerState[9], deltG[9]\",\n    \"ReqCapByForm\": \"陀螺数据转换表: Gyro_TransTable\"\n  },\n  \"Output DSL\": {\n    \"GetDataFunc\": \"GetData Gyro3F { GyroPowerState[9], deltG[9] } ReqCapByTable Gyro_TransTable\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "太阳敏感器数据采集。功能描述：太阳敏感器数据采集。输入：AD采集寄存器地址。输出：部件加电状态、太阳可见标志及测量角度。参照太阳敏感器数据转换表",
+    "Correct answer": "GetData DSS {dssPower, viewCode, AttigDss[2]} ReqCapByTable Dss_TransTable",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"GetData\",\n  \"BNF Grammar\": {\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"太阳敏感器(DSS)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"太阳敏感器采集的姿态角度: AttigDss[2], 太阳敏感器加断电开关信号: dssPower, 太阳可见标志: viewCode\",\n    \"ReqCapByForm\": \"太阳敏感器数据转换表: Dss_TransTable\"\n  },\n  \"Output DSL\": {\n    \"GetData DSS { AttigDss, dssPower, viewCode } ReqCapByTable Dss_TransTable\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "推力器数据采集。功能描述：推力器数据采集。输入：AD采集寄存器地址。输出：推力器加电状态。参照推力器电源状态协议表",
+    "Correct answer": "GetData JET {JetPowerState} ReqCapByTable jet_proTable2",
+    "LLM inference": "GetData JET { JetPowerState } ReqCapByTable jet_proTable2",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"GetData\",\n  \"BNF Grammar\": {\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"推力器(JET)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"推力器加电状态: JetPowerState\",\n    \"ReqCapByForm\": \"推力器电源状态协议表: jet_proTable2\"\n  },\n  \"Output DSL\": \"GetData JET { JetPowerState } ReqCapByTable jet_proTable2\"\n}\n```"
+  },
+  {
+    "Requirement": "姿态确定。功能描述：卫星三轴姿态确定。输入：陀螺测量角速度，太阳敏感器采集的姿态角度，太阳可见标志。输出：三轴姿态角度、三轴角速度，工作模式字。参照“陀螺数据剔野处理”算法表，“计算三轴角速度、计算陀螺角速度”算法表，“确定卫星姿态角度和角速度”算法表",
+    "Correct answer": "Compute {attiang, attirate, currentmode} {deltG[9], AttigDss[2], viewCode} ReqCapByTable {B1Table,B2Table,B3Table}",
+    "LLM inference": "ComputeFunc",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Compute\",\n  \"BNF Grammar\": {\n    \"ComputeFunc\": \"'Compute' <OutputData> <InputData>\",\n    \"OutputData\": \"<Identifier> (',' <Identifier>)*\",\n    \"InputData\": \"<Identifier> (',' <Identifier>)*\",\n    \"ReqCapByForm\": \"'ReqCapByTable' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByFormula' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByNL' (<String> | '{' <StringList> '}') | 'ReqCapByPseudoCode' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByFlowChart' (<Identifier> | '{' <IdentifierList> '}')\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"陀螺测量角速度(deltG[9])\", \"太阳敏感器采集的姿态角度(AttigDss[2])\", \"太阳可见标志(viewCode)\"],\n    \"Output\": [\"三轴姿态角度(attiang)\", \"三轴角速度(attirate)\", \"工作模式字(currentmode)\"],\n    \"ReqCapByForm\": [\"陀螺数据剔野处理(B1Table)\", \"计算三轴角速度、计算陀螺角度积分(B2Table)\", \"确定卫星姿态角度和角速度(B3Table)\"]\n  },\n  \"Output DSL\": {\n    \"ComputeFunc\": \"Compute attiang, attirate, currentmode deltG[9], AttigDss[2], viewCode ReqCapByTable {B1Table, B2Table, B3Table}\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "控制量计算。功能描述：根据卫星当前姿态及目标姿态计算控制量。输入：卫星当前三轴姿态角及角速度，目标角度及角速度（三轴角度偏置量及角速度偏置量）。输出：三轴控制量。参照\"三轴姿态角限幅处理，计算得到三轴控制量\"算法表",
+    "Correct answer": "Compute {pulseWidth} {attiang, attirate, attiangT, attirateT} ReqCapByTable B4Table",
+    "LLM inference": "ComputeFunc",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Compute\",\n  \"BNF Grammar\": {\n    \"ComputeFunc\": \"'Compute' <OutputData> <InputData>\",\n    \"OutputData\": \"<Identifier>\",\n    \"InputData\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"中央控制单元(AOCC)\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"三轴控制量：pulseWidth\", \"三轴姿态角：attiang\", \"三轴角速度：attirate\", \"目标角度：attiangT\", \"目标角速度：attirateT\"],\n    \"ReqCapByForm\": \"三轴姿态角限幅处理，计算得到三轴控制量: B4Table\"\n  },\n  \"Output DSL\": {\n    \"ComputeFunc\": \"Compute pulseWidth attiang, attirate, attiangT, attirateT ReqCapByTable B4Table\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "太阳搜索不成功故障诊断。功能描述：太阳搜索不成功后切换备份太阳敏感器。输入：太阳可见标志。输出：太阳敏感器加断电开关信号，推力器开关信号。",
+    "Correct answer": "Compute {dssPower, jetPower} {viewCode}",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"ProTC\",\n  \"BNF Grammar\": {\n    \"ProTCFunc\": \"'ProTC' <Identifier> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"'At' '(' <Time> (',' 'Period')? ')' | 'In' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 'After' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')'\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\"\n  },\n  \"Device Library\": {\n    \"Sensor\": \"太阳敏感器(DSS)\",\n    \"Actuator\": \"推力器(JET)\"\n  },\n  \"Data Dictionary\": {\n    \"太阳可见标志\": \"viewCode\",\n    \"太阳敏感器加断电开关信号\": \"dssPower\",\n    \"推力器开关信号\": \"jetPower\"\n  },\n  \"Output DSL\": {\n    \"ProTC AOCC { viewCode, dssPower, jetPower } ReqCapByTable B5Table\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "推力器频繁喷气故障诊断。功能描述：推力器频繁喷气故障诊断。输入：推力器喷气间隔时间。输出：推力器开关信号。",
+    "Correct answer": "Compute {jetPower} {jetT}",
+    "LLM inference": "Compute",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Compute\",\n  \"BNF Grammar\": {\n    \"ComputeFunc\": \"'Compute' <OutputData> <InputData>\",\n    \"TimeConstraint\": \"('At' '(' <Time> (',' 'Period')? ')' | 'In' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 'After' '(' <Time> | '[' <Time> ',' <Time> ']' ')' | 'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')')\",\n    \"ReqCapByForm\": \"'ReqCapByTable' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByFormula' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByNL' (<String> | '{' <StringList> '}') | 'ReqCapByPseudoCode' (<Identifier> | '{' <IdentifierList> '}') | 'ReqCapByFlowChart' (<Identifier> | '{' <IdentifierList> '}')\",\n    \"TimeConsDef\": \"'Finished' 'Within' <Time>\"\n  },\n  \"Device Library\": {\n    \"Actuator\": \"推力器(JET)\"\n  },\n  \"Data Dictionary\": {\n    \"Input\": \"推力器喷气间隔时间：jetT\",\n    \"Output\": \"推力器开关信号：jetPower\"\n  },\n  \"Output DSL\": {\n    \"Compute\": \"Compute jetPower jetT ReqCapByTable jet_proTable1 Finished Within 100ms\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "陀螺控制输出。功能描述：三浮陀螺控制输出。调用条件：上电初始化时调用。输入：陀螺控制开关寄存器地址。输出：陀螺控制开关信号。参照陀螺加断电指令表",
+    "Correct answer": "SendData Gyro3F {gyroPower} ReqCapByTable gyro_proTable1",
+    "LLM inference": "Init Gyro3F { gyro_proTable1 }",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"Init\",\n  \"BNF Grammar\": {\n    \"InitFunc\": \"'Init' <PortName> '{' <Config> '}'\",\n    \"PortName\": \"<Identifier>\",\n    \"Config\": \"<Identifier>\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"三浮陀螺(Gyro3F)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"陀螺开关信号: gyroPower\",\n    \"ReqCapByForm\": \"陀螺加断电指令表: gyro_proTable1\"\n  },\n  \"Output DSL\": \"Init Gyro3F { gyro_proTable1 }\"\n}\n```"
+  },
+  {
+    "Requirement": "太阳敏感器控制输出。功能描述：太阳敏感器开关控制。调用条件：上电初始化、或太阳敏感器不可见故障时调用。输入：太阳敏感器开关控制寄存器地址。输出：太阳敏感器开关控制信号。具体操作见太阳敏感器输出使能协议表。",
+    "Correct answer": "SendData DSS {dssPower} ReqCapByTable dss_proTable1",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"SendData\",\n  \"BNF Grammar\": {\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"太阳敏感器(DSS)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"太阳敏感器加断电开关信号:dssPower\",\n    \"ReqCapByForm\": \"太阳敏感器输出使能协议表:dss_proTable1\"\n  },\n  \"Output DSL\": {\n    \"SendData DSS { dssPower } ReqCapByTable dss_proTable1\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "推力器输出。功能描述：三轴控制量分配给各推力器。输入：三轴控制量。输出：各推力器输出。参照推力器输出数据协议表",
+    "Correct answer": "SendData JET {pulseWidth} ReqCapByTable jet_proTable1",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"SendData\",\n  \"BNF Grammar\": {\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"推力器(JET)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"三轴控制量：pulseWidth\",\n    \"ReqCapByForm\": \"推力器输出数据协议表: jet_proTable1\"\n  },\n  \"Output DSL\": {\n    \"SendData JET { pulseWidth } ReqCapByTable jet_proTable1\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "遥测处理。功能描述：打包软件运行状态，通过串口发送给数管。输入：卫星当前工作模式字，当前角度及当前速度，串口通信地址。输出：无。遥测数据格式参照遥测数据管理计算机数据格式表",
+    "Correct answer": "ProTM OBDH {currentmode, attiang, attirate} ReqCapByTable ProTable_TM",
+    "LLM inference": "[ERROR] Output DSL not found",
+    "LLM total answer": "```json\n{\n  \"Pattern\": \"ProTM\",\n  \"BNF Grammar\": {\n    \"ProTMFunc\": \"'ProTM' <Identifier> '{' <DataSet> '}'\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\"\n  },\n  \"Device Library\": {\n    \"ExtComputer\": \"数管计算机(OBDH)\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"ProTable_TM\": \"遥测数据管理计算机数据格式表\"\n  },\n  \"Output DSL\": {\n    \"ProTM OBDH {currentmode, attiang, attirate} ReqCapByTable ProTable_TM\"\n  }\n}\n```"
+  }
+]

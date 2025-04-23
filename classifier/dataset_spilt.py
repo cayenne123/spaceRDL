@@ -6,11 +6,11 @@ from sklearn.model_selection import StratifiedShuffleSplit
 
 def main():
     # —— 1. 读原始数据 ——  
-    df = pd.read_excel('spacerdl_fun_sim.xlsx')  # 按需改成 pd.read_csv(...)
+    df = pd.read_excel('D:/LLM-code/spaceRDL/classifier/spacerdl_fun.xlsx')  # 按需改成 pd.read_csv(...)
     
     # —— 2. 构造联合标签 path_label ——  
-    # LEVEL_COLS = ['Level1','Level2','Level3','Level4']
-    LEVEL_COLS = ['Label']
+    LEVEL_COLS = ['Level1','Level2','Level3','Level4']
+    # LEVEL_COLS = ['Label']
     df['path_label'] = (
         df[LEVEL_COLS]
         .fillna('')
@@ -36,7 +36,7 @@ def main():
         random_state=42
     )
     
-    base_dir = 'splits_sim'
+    base_dir = 'classifier/splits'
     for fold, (idx_trval, idx_test) in enumerate(outer.split(df_onehot, y), start=1):
         # 每折创建自己的文件夹
         folder = os.path.join(base_dir, f'fold_{fold}')
@@ -61,9 +61,9 @@ def main():
         df_val   = df_trval.iloc[idx_val].reset_index(drop=True)
         
         # —— 7. 保存到各自文件夹 ——  
-        df_train.to_csv(os.path.join(folder, 'train.csv'), index=False)
-        df_val.to_csv(  os.path.join(folder, 'val.csv'),   index=False)
-        df_test.to_csv( os.path.join(folder, 'test.csv'),  index=False)
+        df_train.to_excel(os.path.join(folder, 'train.xlsx'), index=False)
+        df_val.to_excel(  os.path.join(folder, 'val.xlsx'),   index=False)
+        df_test.to_excel( os.path.join(folder, 'test.xlsx'),  index=False)
         
         print(f'Fold {fold}: '
               f'train={len(df_train):3d}, '
