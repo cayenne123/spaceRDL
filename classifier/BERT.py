@@ -171,7 +171,7 @@ class CustomDataset(Dataset):
     
 # 加载数据函数
 def load_data(file_path,fold,train_or_test):
-    df = pd.read_csv(file_path)
+    df = pd.read_excel(file_path)
     # with open(f'splits/fold_{fold}_{"train" if train_or_test=="train" else "test"}_req_with_refined_core_classes.json','r',encoding='utf-8') as file:
     #     req_with_refined_core_classes=json.load(file)
     # texts = df['Requirements Description'].values  # 第一列为 "Requirements Description"
@@ -291,8 +291,8 @@ def cross_validation_training(data_dir, n_splits=10):
         if fold==2:
             break
         print(f"Training fold {fold}...")
-        train_file = os.path.join(data_dir, f"fold_{fold}", "train.csv")
-        test_file = os.path.join(data_dir, f"fold_{fold}", "test.csv")
+        train_file = os.path.join(data_dir, f"fold_{fold}", "train.xlsx")
+        test_file = os.path.join(data_dir, f"fold_{fold}", "test.xlsx")
         
         # 加载训练集和测试集
         # train_texts, train_labels, train_feature, train_weight = load_data(train_file)
