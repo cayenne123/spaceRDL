@@ -73,7 +73,7 @@
 <InitFunc>        ::= 'Init' <PortName> '{' <Config> '}'
 <GetDataFunc>     ::= 'GetData' <DeviceName> '{' <DataSet> '}'
 <SendDataFunc>    ::= 'SendData'  <DeviceName>  '{' <DataSet> '}'
-<ComputeFunc>     ::= ('CalEnv' | 'ProVId' | 'DetAtt' | 'CalTar' | 'CalCtrl' | 'SwitchMode' | 'Diagnose') 
+<ComputeFunc>     ::= ('OrbitCtrl' | 'ProVId' | 'DetAtt' | 'AttCtrl' | 'SwitchMode' | 'Diagnose') 
                       <OutputData> <InputData>
 <ProTMFunc>       ::= 'ProTM' <Identifier> '{' <DataSet> '}'
 <ProTCFunc>       ::= 'ProTC' <Identifier> '{' <DataSet> '}'

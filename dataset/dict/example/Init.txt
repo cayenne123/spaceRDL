@@ -1,0 +1,23 @@
+##Input Requirement## 
+开100ms定时器中断。功能描述：通过向定时控制寄存器第一位中存入‘0’，可启动定时器以产生连续的100ms周期中断信号，寄存器的地址为0x8824。调用条件：软件初始化后
+
+##BNF Grammar##
+<OperationalStmt> ::= <AutomicFunc> ';'
+
+<AutomicFunc> ::= <InitFunc>
+
+<InitFunc> ::= 'Init' <Identifier> <Literal>
+
+<Identifier> ::= [a-zA-Z_] [a-zA-Z0-9_]*
+<Literal>    ::= <Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>
+
+<Number> ::= '0' | [1-9][0-9]*
+
+##Device Library##
+timer100
+
+##Data Dictionary##
+0
+
+##Output DSL##
+Init timer100 0;

@@ -2,7 +2,16 @@ import json
 import os
 from eval_tool.rough_compute import compute_standard_rough
 from eval_tool.bleu_compute import calculate_bleu_scores
-from llm_inference_new import parse_automic_func, parse_core_func, do_match, compute_bleu_batch
+from llm_inference import parse_automic_func, parse_core_func, do_match, compute_bleu_batch
+
+"""
+对于每一个样本，拆分成<TimeConstraint, Pattern, Device, Variable>, 计算预测标签和真实标签的precision-sample、recall-sample, f1-sampe
+对于Device, Variable, 认为数量、语义一致则正确
+true: At(150s) SendData SS {J2000Speed}; <At(150s), SendData, SS, J2000Speed>
+predict： SendData SS {attirate}; <SendData, SS, J2000Speed>
+precision: 3/3
+recall: 3/4
+"""
 
 if __name__ == "__main__":
     inference_path = "D:/LLM/SpaceRDL/RDLAPI/RDLAPI/results/deepseek-chat/inference.json"

@@ -1,0 +1,24 @@
+##Input Requirement## 
+太阳敏感器控制输出。功能描述：太阳敏感器开关控制。调用条件：上电初始化、或太阳敏感器不可见故障时调用。输入：太阳敏感器开关控制寄存器地址。输出：太阳敏感器开关控制信号。具体操作见太阳敏感器开关控制信息表。
+
+##BNF Grammar##
+<OperationalStmt> ::= <AutomicFunc> ';'
+
+<AutomicFunc>     ::= <SendDataFunc>
+
+<SendDataFunc>    ::= 'SendData' <DeviceName> '{' <DataSet> '}'
+
+<DeviceName>      ::= <Identifier>
+
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+
+##Device Library##
+DSS
+
+##Data Dictionary##
+dssPower
+
+##Output DSL##
+SendData DSS {dssPower};

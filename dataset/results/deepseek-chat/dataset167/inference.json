@@ -1,0 +1,962 @@
+[
+  {
+    "Requirement": "设置初始工作模式字为速率阻尼；",
+    "Correct answer": "Set currentmode RDSM;",
+    "LLM inference": "Set currentmode RDSM;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"BoolConst\": \"'true' | 'false'\"\n  },\n  \"Device Library\": {},\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\"\n  },\n  \"Output DSL\": \"Set currentmode RDSM;\"\n}\n```"
+  },
+  {
+    "Requirement": "开32ms定时器中断。功能描述：通过向定时控制寄存器GTCR0的D[0]位写一次‘1’，可启动定时器以产生连续的32ms周期中断信号，寄存器GTCR0的地址为0x8083",
+    "Correct answer": "Init timer32 1;",
+    "LLM inference": "Init CR.GTCR0 {0x8083, 1};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<InitFunc>\",\n    \"InitFunc\": \"'Init' <PortName> <Config>\",\n    \"PortName\": \"<Identifier> '.' <Identifier>\",\n    \"Config\": \"'{' <LiteralList> '}'\",\n    \"LiteralList\": \"<Literal> (',' <Literal>)*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Control register(CR)\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": []\n  },\n  \"Output DSL\": \"Init CR.GTCR0 {0x8083, 1};\"\n}\n```"
+  },
+  {
+    "Requirement": "遥控处理。功能描述：通过串口接收地面指令，进行指令校验，设置卫星工作模式字。输入：遥控接收串口地址。输出：下一周期工作模式字。",
+    "Correct answer": "ProTC OBDH {currentmode};",
+    "LLM inference": "ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "陀螺数据采集。功能描述：陀螺数据采集。输入：串口操作地址。输出：加电状态、角速度模拟量。",
+    "Correct answer": "GetData Gyro3F {deltG[9], GyroPowerState[9]};",
+    "LLM inference": "GetData Gyro3F {deltG[9], GyroPowerState[9]};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<GetDataFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Gyro3F\": \"三浮陀螺\"\n  },\n  \"Data Dictionary\": {\n    \"GyroPowerState[9]\": \"陀螺加电状态\",\n    \"deltG[9]\": \"陀螺测量角速度\"\n  },\n  \"Output DSL\": \"GetData Gyro3F {deltG[9], GyroPowerState[9]};\"\n}\n```"
+  },
+  {
+    "Requirement": "太阳敏感器数据采集。功能描述：太阳敏感器数据采集。输入：AD采集寄存器地址。输出：部件加电状态、太阳可见标志及测量角度。",
+    "Correct answer": "GetData DSS {dssPower, viewCode, AttigDss[2]};",
+    "LLM inference": "GetData DSS {dssPower, viewCode, AttigDss[2]};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": \"太阳敏感器(DSS)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"dssPower, viewCode, AttigDss[2]\"\n  },\n  \"Output DSL\": \"GetData DSS {dssPower, viewCode, AttigDss[2]};\"\n}\n```"
+  },
+  {
+    "Requirement": "推力器数据采集。功能描述：推力器数据采集。输入：AD采集寄存器地址。输出：推力器加电状态。",
+    "Correct answer": "GetData JET {JetPowerState};",
+    "LLM inference": "GetData JET {JetPowerState};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"JET\", \"CR\", \"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"JetPowerState\"]\n  },\n  \"Output DSL\": \"GetData JET {JetPowerState};\"\n}\n```"
+  },
+  {
+    "Requirement": "姿态确定。功能描述：卫星三轴姿态确定。输入：陀螺测量角速度，太阳敏感器采集的姿态角度，太阳可见标志。输出：三轴姿态角度、三轴角速度，工作模式字。",
+    "Correct answer": "DetAtt {attiang, attirate, currentmode} {deltG[9], AttigDss[2], viewCode};",
+    "LLM inference": "DetAtt {attiang, attirate, currentmode} {deltG[9], AttigDss[2], viewCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {},\n  \"Data Dictionary\": {\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"currentmode\": \"工作模式字\",\n    \"deltG[9]\": \"陀螺测量角速度\",\n    \"AttigDss[2]\": \"太阳敏感器采集的姿态角度\",\n    \"viewCode\": \"太阳可见标志\"\n  },\n  \"Output DSL\": \"DetAtt {attiang, attirate, currentmode} {deltG[9], AttigDss[2], viewCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "控制量计算。功能描述：根据卫星当前姿态及目标姿态计算控制量。输入：卫星当前三轴姿态角及角速度，目标角度及角速度（三轴角度偏置量及角速度偏置量）。输出：三轴控制量。",
+    "Correct answer": "AttCtrl {pulseWidth} {attiang, attirate, attiangT, attirateT};",
+    "LLM inference": "AttCtrl {pulseWidth} {attiang, attirate, attiangT, attirateT};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"三轴控制量\": \"pulseWidth\",\n    \"三轴姿态角\": \"attiang\",\n    \"三轴角速度\": \"attirate\",\n    \"目标角度\": \"attiangT\",\n    \"目标角速度\": \"attirateT\",\n    \"太阳可见标志\": \"viewCode\",\n    \"工作模式字\": \"currentmode\",\n    \"陀螺测量角速度\": \"deltG[9]\",\n    \"太阳敏感器采集的姿态角度\": \"AttigDss[2]\",\n    \"太阳敏感器加断电开关信号\": \"dssPower\",\n    \"推力器开关信号\": \"jetPower\",\n    \"陀螺开关信号\": \"gyroPower\",\n    \"推力器喷气间隔时间\": \"jetT\",\n    \"陀螺加电状态\": \"GyroPowerState[9]\",\n    \"推力器加电状态\": \"JetPowerState\",\n    \"速率阻尼\": \"RDSM\",\n    \"俯仰搜索\": \"PASM\",\n    \"滚动搜索\": \"RASM\",\n    \"对日巡航\": \"CSM\",\n    \"三轴姿态角偏差\": \"attimombias\",\n    \"时间码\": \"timeCode\",\n    \"星上时钟的计数值\": \"stellarCount\",\n    \"星时\": \"stellarTime\"\n  },\n  \"Output DSL\": \"AttCtrl {pulseWidth} {attiang, attirate, attiangT, attirateT};\"\n}\n```"
+  },
+  {
+    "Requirement": "太阳搜索不成功故障诊断。功能描述：太阳搜索不成功后切换备份太阳敏感器。输入：太阳可见标志。输出：太阳敏感器加断电开关信号，推力器开关信号。",
+    "Correct answer": "Diagnose {dssPower, jetPower} {viewCode};",
+    "LLM inference": "Diagnose {dssPower, jetPower} {viewCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\"],\n    \"Actuator\": [\"推力器(JET)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"viewCode\"],\n    \"Output\": [\"dssPower\", \"jetPower\"]\n  },\n  \"Output DSL\": \"Diagnose {dssPower, jetPower} {viewCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "推力器频繁喷气故障诊断。功能描述：推力器频繁喷气故障诊断。输入：推力器喷气间隔时间。输出：推力器开关信号。",
+    "Correct answer": "Diagnose {jetPower} {jetT};",
+    "LLM inference": "Diagnose jetPower jetT;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [],\n    \"Actuator\": [\"推力器(JET)\"],\n    \"ExtComputer\": [],\n    \"Controller\": []\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"jetT\"],\n    \"Output\": [\"jetPower\"]\n  },\n  \"Output DSL\": \"Diagnose jetPower jetT;\"\n}\n```"
+  },
+  {
+    "Requirement": "陀螺控制输出。功能描述：三浮陀螺控制输出。调用条件：上电初始化时调用。输入：陀螺控制开关寄存器地址。输出：陀螺控制开关信号。参照陀螺控制指令表",
+    "Correct answer": "SendData Gyro3F {gyroPower};",
+    "LLM inference": "SendData Gyro3F {gyroPower};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Gyro3F\": \"三浮陀螺\"\n  },\n  \"Data Dictionary\": {\n    \"gyroPower\": \"陀螺开关信号\"\n  },\n  \"Output DSL\": \"SendData Gyro3F {gyroPower};\"\n}\n```"
+  },
+  {
+    "Requirement": "太阳敏感器控制输出。功能描述：太阳敏感器开关控制。调用条件：上电初始化、或太阳敏感器不可见故障时调用。输入：太阳敏感器开关控制寄存器地址。输出：太阳敏感器开关控制信号。",
+    "Correct answer": "SendData DSS {dssPower};",
+    "LLM inference": "SendData DSS {dssPower};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<SendDataFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DSS\": \"太阳敏感器(DSS)\"\n  },\n  \"Data Dictionary\": {\n    \"dssPower\": \"太阳敏感器加断电开关信号\"\n  },\n  \"Output DSL\": \"SendData DSS {dssPower};\"\n}\n```"
+  },
+  {
+    "Requirement": "推力器输出。功能描述：三轴控制量分配给各推力器。输入：三轴控制量。输出：各推力器输出。",
+    "Correct answer": "SendData JET {pulseWidth};",
+    "LLM inference": "SendData JET {pulseWidth, JetPowerState};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"JET\", \"thrusterCtrlBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"JetPowerState\"]\n  },\n  \"Output DSL\": \"SendData JET {pulseWidth, JetPowerState};\"\n}\n```"
+  },
+  {
+    "Requirement": "遥测处理。功能描述：打包软件运行状态，通过串口发送给数管。输入：卫星当前工作模式字，当前角度及当前速度，串口通信地址。输出：无。",
+    "Correct answer": "ProTM OBDH {currentmode, attiang, attirate};",
+    "LLM inference": "ProTM OBDH {currentmode, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ProTMFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\"\n  },\n  \"Output DSL\": \"ProTM OBDH {currentmode, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "初始化1553B为RT模式，初始化函数运行时间小于500ms。",
+    "Correct answer": "Init currentMode1553B RT Finished Within 500ms;",
+    "LLM inference": "Init 1553B.mode {RT} Finished Within 500ms;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"InitFunc\": \"'Init' <PortName> <Config>\",\n    \"PortName\": \"<Identifier> '.' <Identifier>\",\n    \"Config\": \"'{' <LiteralList> '}'\",\n    \"LiteralList\": \"<Literal> (',' <Literal>)*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"TimeConsDef\": \"'Finished' 'Within' <Time>\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\"\n  },\n  \"Device Library\": {\n    \"1553B\": \"1553B芯片(1553B)\"\n  },\n  \"Data Dictionary\": {},\n  \"Output DSL\": \"Init 1553B.mode {RT} Finished Within 500ms;\"\n}\n```"
+  },
+  {
+    "Requirement": "1553B（外总线）初始化：按通讯协议要求进行设置，初始化RAM区为0",
+    "Correct answer": "Init 1553B 0;",
+    "LLM inference": "Init 1553B.RAM {0x0};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"InitFunc\": \"'Init' <PortName> <Config>\",\n    \"PortName\": \"<Identifier> '.' <Identifier>\",\n    \"Config\": \"'{' <LiteralList> '}'\",\n    \"LiteralList\": \"<Literal> (',' <Literal>)*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"1553B\": \"1553B芯片(1553B)\"\n  },\n  \"Data Dictionary\": {\n    \"None\": \"None\"\n  },\n  \"Output DSL\": \"Init 1553B.RAM {0x0};\"\n}\n```"
+  },
+  {
+    "Requirement": "初始化控制寄存器。将最低位初始化为0",
+    "Correct answer": "Init CR 0;",
+    "LLM inference": "Init CR.ctrlReg {0};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"InitFunc\": \"'Init' <PortName> <Config>\",\n    \"PortName\": \"<Identifier> '.' <Identifier>\",\n    \"Config\": \"'{' <LiteralList> '}'\",\n    \"LiteralList\": \"<Literal> (',' <Literal>)*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"BoolConst\": \"'true' | 'false'\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"控制寄存器(CR)\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": []\n  },\n  \"Output DSL\": \"Init CR.ctrlReg {0};\"\n}\n```"
+  },
+  {
+    "Requirement": "模式字初始化为0",
+    "Correct answer": "Init currentmode 0;",
+    "LLM inference": "Set currentmode 0;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"BoolConst\": \"'true' | 'false'\"\n  },\n  \"Device Library\": {\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"]\n  },\n  \"Data Dictionary\": {\n    \"工作模式字\": \"currentmode\"\n  },\n  \"Output DSL\": \"Set currentmode 0;\"\n}\n```"
+  },
+  {
+    "Requirement": "进入初始速率阻尼模式",
+    "Correct answer": "Set currentmode RDSM;",
+    "LLM inference": "Set currentmode RDSM;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"BoolConst\": \"'true' | 'false'\"\n  },\n  \"Device Library\": {\n    \"Controller\": \"中央控制单元(AOCC)\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\",\n    \"RDSM\": \"速率阻尼\"\n  },\n  \"Output DSL\": \"Set currentmode RDSM;\"\n}\n```"
+  },
+  {
+    "Requirement": "GPS无效判断的连续次数变量由1改为7",
+    "Correct answer": "Set GPSConsecutiveInvalidJudgmentNumber 7;",
+    "LLM inference": "Set gpsInvalidCount 7;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {},\n  \"Data Dictionary\": {\n    \"GPS无效判断的连续次数变量\": \"gpsInvalidCount\"\n  },\n  \"Output DSL\": \"Set gpsInvalidCount 7;\"\n}\n```"
+  },
+  {
+    "Requirement": "置星时0.375s",
+    "Correct answer": "Set stellarTime 0.375s;",
+    "LLM inference": "Set stellarTime 0.375s;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Decimal\": \"<Number> '.' [0-9]+\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\"\n  },\n  \"Device Library\": {},\n  \"Data Dictionary\": {\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"Set stellarTime 0.375s;\"\n}\n```"
+  },
+  {
+    "Requirement": "采集四个动量轮加电状态",
+    "Correct answer": "GetData mwSys {mw1Status, mw2Status,  mw3Status, mw4Status};",
+    "LLM inference": "GetData mwSys {GyroPowerState[9]};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<GetDataFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"mwSys\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"GyroPowerState[9]\"\n  },\n  \"Output DSL\": \"GetData mwSys {GyroPowerState[9]};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集三路伽马关机敏感器关机信号",
+    "Correct answer": "GetData gammaSys {gamma1Shutdown, gamma2Shutdown,  gamma3Shutdown};",
+    "LLM inference": "GetData gammaSys {viewCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"gammaSys\": \"伽马关机敏感器\"\n  },\n  \"Data Dictionary\": {\n    \"viewCode\": \"太阳可见标志\"\n  },\n  \"Output DSL\": \"GetData gammaSys {viewCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集四路触地开关信号",
+    "Correct answer": "GetData landSwitch {touchdown1, touchdown2, touchdown3, touchdown4};",
+    "LLM inference": "GetData landSwitch {landSwitch};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"landSwitch\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"landSwitch\"]\n  },\n  \"Output DSL\": \"GetData landSwitch {landSwitch};\"\n}\n```"
+  },
+  {
+    "Requirement": "连续3次读取A/D数据总线上的数据：data1 = 0x1200 0020 (data2，data3类似)",
+    "Correct answer": "GetData adBus {data1};GetData adBus {data2};GetData adBus {data3};",
+    "LLM inference": "Over(10ms, c, 3) GetData adBus {data1, data2, data3};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"TimeConstraint\": \"<OverConstraint>\",\n    \"OverConstraint\": \"'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"data1\", \"data2\", \"data3\"]\n  },\n  \"Output DSL\": \"Over(10ms, c, 3) GetData adBus {data1, data2, data3};\"\n}\n```"
+  },
+  {
+    "Requirement": "读取当前星时计数器",
+    "Correct answer": "GetData STCounter {Stellar};",
+    "LLM inference": "GetData STCounter {stellarCount};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"STCounter\": \"星时计数器\"\n  },\n  \"Data Dictionary\": {\n    \"stellarCount\": \"星上时钟的计数值\"\n  },\n  \"Output DSL\": \"GetData STCounter {stellarCount};\"\n}\n```"
+  },
+  {
+    "Requirement": "从双口RAM中读取I/O发送的数据",
+    "Correct answer": "GetData dpRAM {ioData1, ioData2, ioData3, ioData4};",
+    "LLM inference": "GetData dpRAM {IOData};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"dpRAM\": \"双口RAM\"\n  },\n  \"Data Dictionary\": {\n    \"IOData\": \"I/O发送的数据\"\n  },\n  \"Output DSL\": \"GetData dpRAM {IOData};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集LTU发送的数据",
+    "Correct answer": "GetData ltuBus {rawData};",
+    "LLM inference": "GetData Bus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData Bus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集动量轮的转速方向和脉冲计量",
+    "Correct answer": "GetData mwSys {nw1_dir, mw1_pulseCnt, mw2_dir, mw2_pulseCnt, mw3_dir, mw3_pulseCnt, mw4_dir, mw4_pulseCnt, mw5_dir, mw5_pulseCnt, mw6_dir, mw6_pulseCnt};",
+    "LLM inference": "GetData mwSys {pulseWidth, currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"mwSys\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"pulseWidth, currentmode\"\n  },\n  \"Output DSL\": \"GetData mwSys {pulseWidth, currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集星上时钟的计数值",
+    "Correct answer": "GetData AOCC {stellarCount};",
+    "LLM inference": "GetData STCounter {stellarCount};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<GetDataFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"STCounter\": \"星时计数器\"\n  },\n  \"Data Dictionary\": {\n    \"stellarCount\": \"星上时钟的计数值\"\n  },\n  \"Output DSL\": \"GetData STCounter {stellarCount};\"\n}\n```"
+  },
+  {
+    "Requirement": "向LTU和星敏感器发送自检指令，获得自检信息",
+    "Correct answer": "GetData LTU {ltuCheckResult};",
+    "LLM inference": "SendData Bus {selfTestInfo}; GetData SS {selfTestInfo};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"星敏感器(SS)\"],\n    \"Actuator\": [\"总线(Bus)\"]\n  },\n  \"Data Dictionary\": {\n    \"自检信息\": \"selfTestInfo\"\n  },\n  \"Output DSL\": \"SendData Bus {selfTestInfo}; GetData SS {selfTestInfo};\"\n}\n```"
+  },
+  {
+    "Requirement": "向星敏感器发送自检指令，获得自检信息",
+    "Correct answer": "GetData SS {stellarCheckResult};",
+    "LLM inference": "ProTM SS {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceName\": \"SS\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"currentmode\"\n  },\n  \"Output DSL\": \"ProTM SS {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集28路数字太阳粗码、细码",
+    "Correct answer": "GetData DSS {sunCoarse1, sunFine1};",
+    "LLM inference": "GetData DSS {viewCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"DSS\": \"太阳敏感器\"\n  },\n  \"Data Dictionary\": {\n    \"viewCode\": \"太阳可见标志\"\n  },\n  \"Output DSL\": \"GetData DSS {viewCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "从SDC获取部件供电状态信息，读入各部件加电状态信息",
+    "Correct answer": "GetData SDC {powerOnStatus};",
+    "LLM inference": "GetData OBDH {dssPower, gyroPower, jetPower, GyroPowerState[9], JetPowerState};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<GetDataFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"dssPower\", \"gyroPower\", \"jetPower\", \"GyroPowerState[9]\", \"JetPowerState\"]\n  },\n  \"Output DSL\": \"GetData OBDH {dssPower, gyroPower, jetPower, GyroPowerState[9], JetPowerState};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集GPS的状态信息",
+    "Correct answer": "GetData GPS {gpsRawData};",
+    "LLM inference": "GetData GPS {currentmode, timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"三轴控制量\": \"pulseWidth\",\n    \"三轴姿态角\": \"attiang\",\n    \"三轴角速度\": \"attirate\",\n    \"目标角度\": \"attiangT\",\n    \"目标角速度\": \"attirateT\",\n    \"太阳可见标志\": \"viewCode\",\n    \"工作模式字\": \"currentmode\",\n    \"陀螺测量角速度\": \"deltG[9]\",\n    \"太阳敏感器采集的姿态角度\": \"AttigDss[2]\",\n    \"太阳敏感器加断电开关信号\": \"dssPower\",\n    \"推力器开关信号\": \"jetPower\",\n    \"陀螺开关信号\": \"gyroPower\",\n    \"推力器喷气间隔时间\": \"jetT\",\n    \"陀螺加电状态\": \"GyroPowerState[9]\",\n    \"推力器加电状态\": \"JetPowerState\",\n    \"速率阻尼\": \"RDSM\",\n    \"俯仰搜索\": \"PASM\",\n    \"滚动搜索\": \"RASM\",\n    \"对日巡航\": \"CSM\",\n    \"三轴姿态角偏差\": \"attimombias\",\n    \"时间码\": \"timeCode\",\n    \"星上时钟的计数值\": \"stellarCount\",\n    \"星时\": \"stellarTime\"\n  },\n  \"Output DSL\": \"GetData GPS {currentmode, timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集动量轮电源状态、转速、模拟量等信息。",
+    "Correct answer": "GetData mwSys {cmdData};",
+    "LLM inference": "GetData mwSys {GyroPowerState[9], deltG[9], currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"mwSys\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"GyroPowerState[9]\", \"deltG[9]\", \"currentmode\"]\n  },\n  \"Output DSL\": \"GetData mwSys {GyroPowerState[9], deltG[9], currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "采集星敏同步信号",
+    "Correct answer": "GetData SS {syncData};",
+    "LLM inference": "GetData SS {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"SS\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData SS {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收总线指令，总线通信中，从节点的应答转换时间最大2毫秒",
+    "Correct answer": "GeData Bus {BusCommand};",
+    "LLM inference": "Over(2ms, nc, 1) GetData Bus {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"OverConstraint\": \"'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线(Bus)\",\n    \"1553B\": \"1553B芯片(1553B)\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"Over(2ms, nc, 1) GetData Bus {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "从1553B接收遥控指令数据",
+    "Correct answer": "GetData 1553B {teleCommand};",
+    "LLM inference": "GetData 1553B {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"1553B\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData 1553B {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "AOCC应用软件不对Astro10星敏信息进行补偿计算，而仅每150秒向星敏发送相对J2000的速度",
+    "Correct answer": "After(150s) SendData SS {J2000Speed};",
+    "LLM inference": "At(150s) SendData SS {attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"AtConstraint\": \"'At' '(' <Time> (',' <Time>)? ')'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"SS\": \"星敏感器/星敏\"\n  },\n  \"Data Dictionary\": {\n    \"attirate\": \"三轴角速度\"\n  },\n  \"Output DSL\": \"At(150s) SendData SS {attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "通过简化伪速率调制器计算5N推力器喷气脉冲，并输出",
+    "Correct answer": "SendData thrusterCtrlBus {pulseData};",
+    "LLM inference": "ComputeFunc OrbitCtrl pulseWidth {attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"JET\": \"推力器\",\n    \"thrusterCtrlBus\": \"推力控制总线\"\n  },\n  \"Data Dictionary\": {\n    \"pulseWidth\": \"三轴控制量\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\"\n  },\n  \"Output DSL\": \"ComputeFunc OrbitCtrl pulseWidth {attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "向TM串口5(US[5])写入8字节的数据。",
+    "Correct answer": "SendData US[5] {tmData8B};",
+    "LLM inference": "Init US.5 {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"InitFunc\": \"'Init' <PortName> <Config>\",\n    \"PortName\": \"<Identifier> '.' <Identifier>\",\n    \"Config\": \"'{' <LiteralList> '}'\",\n    \"LiteralList\": \"<Literal> (',' <Literal>)*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"US\": \"TM串口5\"\n  },\n  \"Data Dictionary\": {},\n  \"Output DSL\": \"Init US.5 {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送控制对数传天线的控制角度",
+    "Correct answer": "SendData digitalBus {cmdData};",
+    "LLM inference": "SendData digitalBus {attiang};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"digitalBus\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"attiang\"\n  },\n  \"Output DSL\": \"SendData digitalBus {attiang};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送控制对中继天线的控制角度",
+    "Correct answer": "SendData relayBus {cmdData};",
+    "LLM inference": "SendData relayBus {attiang};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"relayBus\": \"中继天线\"\n  },\n  \"Data Dictionary\": {\n    \"attiang\": \"三轴姿态角\"\n  },\n  \"Output DSL\": \"SendData relayBus {attiang};\"\n}\n```"
+  },
+  {
+    "Requirement": "对DM发送控制指令",
+    "Correct answer": "SendData DM {cmdData};",
+    "LLM inference": "SendData OBDH {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"viewCode\", \"currentmode\", \"deltG[9]\", \"AttigDss[2]\", \"dssPower\", \"jetPower\", \"gyroPower\", \"jetT\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"SendData OBDH {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "对上升器推进线路盒发送控制指令",
+    "Correct answer": "SendData ascBox {cmdData};",
+    "LLM inference": "SendData ascBoxCtrl {pulseWidth};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"ascBoxCtrl\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"pulseWidth\"\n  },\n  \"Output DSL\": \"SendData ascBoxCtrl {pulseWidth};\"\n}\n```"
+  },
+  {
+    "Requirement": "对着陆器推进线路盒发送控制指令",
+    "Correct answer": "SendData lanBox {cmdData};",
+    "LLM inference": "SendData lanBoxCtrl {pulseWidth};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"lanBoxCtrl\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"pulseWidth, attiang, attirate, attiangT, attirateT, viewCode, currentmode, deltG[9], AttigDss[2], dssPower, jetPower, gyroPower, jetT, GyroPowerState[9], JetPowerState, RDSM, PASM, RASM, CSM, attimombias, timeCode, stellarCount, stellarTime\"\n  },\n  \"Output DSL\": \"SendData lanBoxCtrl {pulseWidth};\"\n}\n```"
+  },
+  {
+    "Requirement": "AOCC每0.5秒给伺服控制器发送一帧控制数据",
+    "Correct answer": "After(0.5s) SendData server {oneFrameControlData};",
+    "LLM inference": "In(0.5s) SendData AOCC {pulseWidth, attiang, attirate, attiangT, attirateT};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"InConstraint\": \"'In' '(' <Time> ')' | 'In' '[' <Time> ',' <Time> ']'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"pulseWidth\": \"三轴控制量\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"attiangT\": \"目标角度\",\n    \"attirateT\": \"目标角速度\"\n  },\n  \"Output DSL\": \"In(0.5s) SendData AOCC {pulseWidth, attiang, attirate, attiangT, attirateT};\"\n}\n```"
+  },
+  {
+    "Requirement": "动量轮控制",
+    "Correct answer": "SendData mwSys {cmdData};",
+    "LLM inference": "SendData mwSys {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"mwSys\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"currentmode\"\n  },\n  \"Output DSL\": \"SendData mwSys {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "与动量轮通信，输出本周期电压",
+    "Correct answer": "SenData mwSys {ctrlVoltage1, ctrlVoltage2, ctrlVoltage3, ctrlVoltage4};",
+    "LLM inference": "SendData mwSys {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"mwSys\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"currentmode\"\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"SendData mwSys {currentmode};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：采集高速转速、计算角动量偏差、合成角动量、CMG的Jacobi矩阵 输入：CMG 高速的标称角动量Hwb[i]，CMG状态标志Fcmg[i]；(i=1~5) 输出：使用的CMG角动量sgH（Nms），为35 矩阵； 使用的CMG系统合成角动量H=[Hx，，Hz]T（Nms）； 实测角动量Hw[i]（Nms）； CMG的Jacobi矩阵sgJ，为35 矩阵； CMG的框架角度Sgang[i]（弧度）； 三轴角动量偏差，",
+    "Correct answer": "AttCtrl {sgH, H, Hw[i], sgJ, Sgang[i]} {Hwb[i], Fcmg[i]};",
+    "LLM inference": "ComputeFunc {sgH, H, Hw[i], sgJ, Sgang[i], attimombias} {Hwb[i], Fcmg[i]};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"Hwb[i]\", \"Fcmg[i]\"],\n    \"Output\": [\"sgH\", \"H\", \"Hw[i]\", \"sgJ\", \"Sgang[i]\", \"attimombias\"]\n  },\n  \"Output DSL\": \"ComputeFunc {sgH, H, Hw[i], sgJ, Sgang[i], attimombias} {Hwb[i], Fcmg[i]};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：根据指令完成中继天线的捕获跟踪控制 输入：跟踪开始指令（R_GZKS=1），跟踪结束指令（R_GZJS=1），RelayGDASwapAcqFlag，FRelayGDASwapAcq, ，  输出：RelayGDAView, FRelayGDASwapAcq ,、，",
+    "Correct answer": "AttCtrl {RelayGDAView, FrelayGDASwapAcq} {R_GZKS, R_GZJS, RelayGDASwapAcqFlag};",
+    "LLM inference": "AttCtrl {RelayGDAView, FRelayGDASwapAcq} {R_GZKS, R_GZJS, RelayGDASwapAcqFlag, FRelayGDASwapAcq};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Actuator\": \"中继天线(relayBus)\"\n  },\n  \"Data Dictionary\": {\n    \"Input\": \"R_GZKS, R_GZJS, RelayGDASwapAcqFlag, FRelayGDASwapAcq\",\n    \"Output\": \"RelayGDAView, FRelayGDASwapAcq\"\n  },\n  \"Output DSL\": \"AttCtrl {RelayGDAView, FRelayGDASwapAcq} {R_GZKS, R_GZJS, RelayGDASwapAcqFlag, FRelayGDASwapAcq};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：根据指令完成数传天线的指向控制 输入：数传天线j (j=1,2)，预置指令，跟踪开始指令，跟踪结束指令，地面站i在惯性系指向，被数传天线j(j=1,2)跟踪的地面站i指向卫星矢量，卫星指向被数传天线j(j=1,2)跟踪的地面站i的矢量在本体系的表示，数传天线收到的预置角度 输出：数传天线1和2的指令转角",
+    "Correct answer": "AttCtrl {digitalBus1.cmdAngle, digitalBus2.cmdAngle} {digitalBus[j], presetInstruction, traceStartInstruction, satelliteVector, vectorRepresentation, presetAngle};",
+    "LLM inference": "AttCtrl {commandRotationAngle[1], commandRotationAngle[2]} {preCommand, trackStartCommand, trackEndCommand, groundStationVector, trackedVector, satelliteVector, presetAngle};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"digitalBus\": \"数传天线\"\n  },\n  \"Data Dictionary\": {\n    \"preCommand\": \"预置指令\",\n    \"trackStartCommand\": \"跟踪开始指令\",\n    \"trackEndCommand\": \"跟踪结束指令\",\n    \"groundStationVector\": \"地面站在惯性系指向\",\n    \"trackedVector\": \"被数传天线跟踪的地面站指向卫星矢量\",\n    \"satelliteVector\": \"卫星指向被数传天线跟踪的地面站的矢量在本体系的表示\",\n    \"presetAngle\": \"数传天线收到的预置角度\",\n    \"commandRotationAngle\": \"数传天线的指令转角\"\n  },\n  \"Output DSL\": \"AttCtrl {commandRotationAngle[1], commandRotationAngle[2]} {preCommand, trackStartCommand, trackEndCommand, groundStationVector, trackedVector, satelliteVector, presetAngle};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：计算将动量轮保持至标称角动量所需的电压 输入：实测飞轮角动量，       标称角动量：，       角动量偏差积分项：， 输出：保持角动量所需电压，       角动量偏差积分项：，",
+    "Correct answer": "AttCtrl {maintainAngularMomentumVoltage, deviationAngularMomentum} {measuredAngularMomentum, nominalAngularMomentum, deviationAngularMomentum};",
+    "LLM inference": "AttCtrl {保持角动量所需电压, 角动量偏差积分项} {实测飞轮角动量, 标称角动量, 角动量偏差积分项};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"动量轮(mwSys)\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"实测飞轮角动量, 标称角动量, 角动量偏差积分项, 保持角动量所需电压\"\n  },\n  \"Output DSL\": \"AttCtrl {保持角动量所需电压, 角动量偏差积分项} {实测飞轮角动量, 标称角动量, 角动量偏差积分项};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：计算偏置动量模式下滚动/偏航轴进动控制及章动阻尼所需的磁力矩器脉宽                                                                                                                                                                                                                                                                                                                                                 输入： Y轴角动量偏差     滚动角，滚动角速度，偏航角，偏航角速度 地磁场强度（T） ，及标量B，星下点经纬度L, 输出：磁力矩器工作脉宽，应用软件计算得到的磁力矩器和推力器输出脉宽精度应优于1ms。",
+    "Correct answer": "AttCtrl {pulseWidth} {yDeviationAngularMomentum, rollAngle, angularRollingVelocity,angleDrift,yawAngularVelocity, T, B, L} Finished Within 1ms;",
+    "LLM inference": "AttCtrl {pulseWidth} {attimombias, attiang, attirate, attiang, attirate, B, L};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"attimombias\", \"attiang\", \"attirate\", \"attiang\", \"attirate\", \"B\", \"L\"],\n    \"Output\": [\"pulseWidth\"]\n  },\n  \"Output DSL\": \"AttCtrl {pulseWidth} {attimombias, attiang, attirate, attiang, attirate, B, L};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：根据指令完成数传天线的指向控制 输入： 数传天线(j=1,2)跟踪地面站编号i，跟踪起始时刻ti，地面站i在惯性系指向，被数传天线(j=1,2)跟踪的地面站i指向卫星矢量，卫星指向被数传天线(j=1,2)跟踪的地面站i的矢量在本体系的表示。（i可为1~7）。 输出： 数传天线1和2的指令转角，指令转速，或者复位及保持控制指令。",
+    "Correct answer": "AttCtrl {digitalBus1.cmdAngle, digitalBus2.cmdAngle, speed} {digitalBus[j].tGroundStation, ti, inertialFrame[i], satelliteVector, vectorRepresentation};",
+    "LLM inference": "AttCtrl {数传天线1和2的指令转角, 指令转速, 复位及保持控制指令} {地面站编号i, 跟踪起始时刻ti, 地面站i在惯性系指向, 被数传天线(j=1,2)跟踪的地面站i指向卫星矢量, 卫星指向被数传天线(j=1,2)跟踪的地面站i的矢量在本体系的表示};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [],\n    \"Actuator\": [\"数传天线(digitalBus)\"],\n    \"ExtComputer\": [],\n    \"Controller\": []\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"地面站编号i\", \"跟踪起始时刻ti\", \"地面站i在惯性系指向\", \"被数传天线(j=1,2)跟踪的地面站i指向卫星矢量\", \"卫星指向被数传天线(j=1,2)跟踪的地面站i的矢量在本体系的表示\"],\n    \"Output\": [\"数传天线1和2的指令转角\", \"指令转速\", \"复位及保持控制指令\"]\n  },\n  \"Output DSL\": \"AttCtrl {数传天线1和2的指令转角, 指令转速, 复位及保持控制指令} {地面站编号i, 跟踪起始时刻ti, 地面站i在惯性系指向, 被数传天线(j=1,2)跟踪的地面站i指向卫星矢量, 卫星指向被数传天线(j=1,2)跟踪的地面站i的矢量在本体系的表示};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：为三轴姿态喷气控制选择推力器 输入：JetFlagXP_A、JFN_A、JFP_A 、JFN_A、JFgZP_A 、JFgZN_A（6个姿控分支标志），F_SatStage（卫星构型状态字）、，（星敏感器与陀螺定姿输出的姿态角及角速度）或，、，（其它定姿方式下输出的姿态角及角速度）、，、（协调控制力矩）、(机械臂运动产生的干扰力矩)、，（目标姿态角） 输出：X, Y, Z, FJX, , FJZ（喷气状态），、  TJAi (i=1~6), TJCi (i=1~10)（A分支6个、C分支10个推力器脉宽）、 Ai (i=1~6), Ci (i=1~10)（A分支6个、C分支10个推力器开关标志）、（累计三轴姿控正/反向喷气时间）",
+    "Correct answer": "AttCtrl {X, Y, Z, FJX, FJZ, TJAi, TJCi, Ai, Ci} {JetFlagXP_A, JFN_A, JFP_A , JFN_A, JFgZP_A , JFgZN_A, F_SatStage};",
+    "LLM inference": "AttCtrl {X, Y, Z, FJX, FJZ, TJA1, TJA2, TJA3, TJA4, TJA5, TJA6, TJC1, TJC2, TJC3, TJC4, TJC5, TJC6, TJC7, TJC8, TJC9, TJC10, A1, A2, A3, A4, A5, A6, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, 累计三轴姿控正/反向喷气时间} {JetFlagXP_A, JFN_A, JFP_A, JFgZP_A, JFgZN_A, F_SatStage, attiang, attirate, 协调控制力矩, 机械臂运动产生的干扰力矩, 目标姿态角};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"JetFlagXP_A\", \"JFN_A\", \"JFP_A\", \"JFgZP_A\", \"JFgZN_A\", \"F_SatStage\", \"attiang\", \"attirate\", \"协调控制力矩\", \"机械臂运动产生的干扰力矩\", \"目标姿态角\"],\n    \"Output\": [\"X\", \"Y\", \"Z\", \"FJX\", \"FJZ\", \"TJAi (i=1~6)\", \"TJCi (i=1~10)\", \"Ai (i=1~6)\", \"Ci (i=1~10)\", \"累计三轴姿控正/反向喷气时间\"]\n  },\n  \"Output DSL\": \"AttCtrl {X, Y, Z, FJX, FJZ, TJA1, TJA2, TJA3, TJA4, TJA5, TJA6, TJC1, TJC2, TJC3, TJC4, TJC5, TJC6, TJC7, TJC8, TJC9, TJC10, A1, A2, A3, A4, A5, A6, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, 累计三轴姿控正/反向喷气时间} {JetFlagXP_A, JFN_A, JFP_A, JFgZP_A, JFgZN_A, F_SatStage, attiang, attirate, 协调控制力矩, 机械臂运动产生的干扰力矩, 目标姿态角};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能：利用星敏感器A、B的测量，修正姿态四元数与估计陀螺漂移 输入：星敏感器A、B修正新息，四元数、陀螺常漂 输出：修正四元数、陀螺常漂",
+    "Correct answer": "DetAtt {correctedQuaternion, gyroConstantDrift} {SSAInfo, SSBInfo, quaternion, gyroConstantDrift};",
+    "LLM inference": "DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 星敏感器B修正新息, 四元数, 陀螺常漂};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'DetAtt'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"星敏感器(SS)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"星敏感器A修正新息\", \"星敏感器B修正新息\", \"四元数\", \"陀螺常漂\"],\n    \"Output\": [\"修正四元数\", \"陀螺常漂\"]\n  },\n  \"Output DSL\": \"DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 星敏感器B修正新息, 四元数, 陀螺常漂};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能：利用星敏感器A的测量，修正姿态四元数与估计陀螺漂移 输入：星敏感器A修正新息，四元数、陀螺常漂 输出：修正四元数、陀螺常漂",
+    "Correct answer": "DetAtt {correctedQuaternion, gyroConstantDrift} {SSAInfo, quaternion, gyroConstantDrift};",
+    "LLM inference": "DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 四元数, 陀螺常漂};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": \"星敏感器(SS)\"\n  },\n  \"Data Dictionary\": {\n    \"Input\": \"星敏感器A修正新息, 四元数, 陀螺常漂\",\n    \"Output\": \"修正四元数, 陀螺常漂\"\n  },\n  \"Output DSL\": \"DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 四元数, 陀螺常漂};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能：利用星敏感器B的测量，修正姿态四元数与估计陀螺漂移 输入：星敏感器B修正新息，四元数、陀螺常漂 输出：修正四元数、陀螺常漂",
+    "Correct answer": "DetAtt {correctedQuaternion, gyroConstantDrift} {SSBInfo, quaternion, gyroConstantDrift};",
+    "LLM inference": "DetAtt {修正四元数, 陀螺常漂} {星敏感器B修正新息, 四元数, 陀螺常漂};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": \"星敏感器(SS)\"\n  },\n  \"Data Dictionary\": {\n    \"Input\": \"星敏感器B修正新息, 四元数, 陀螺常漂\",\n    \"Output\": \"修正四元数, 陀螺常漂\"\n  },\n  \"Output DSL\": \"DetAtt {修正四元数, 陀螺常漂} {星敏感器B修正新息, 四元数, 陀螺常漂};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能：利用星敏感器A、B的测量，修正姿态四元数与估计角速度 输入：星敏感器A、B修正新息，四元数、无陀螺时估计的角速度 输出：修正四元数、陀螺常漂",
+    "Correct answer": "DetAtt {correctedQuaternion, gyroConstantDrift} {SSAInfo, SSBInfo, quaternion, angularVelocity};",
+    "LLM inference": "DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 星敏感器B修正新息, 四元数, 无陀螺时估计的角速度};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'DetAtt'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"星敏感器(SS)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"星敏感器A修正新息\", \"星敏感器B修正新息\", \"四元数\", \"无陀螺时估计的角速度\"],\n    \"Output\": [\"修正四元数\", \"陀螺常漂\"]\n  },\n  \"Output DSL\": \"DetAtt {修正四元数, 陀螺常漂} {星敏感器A修正新息, 星敏感器B修正新息, 四元数, 无陀螺时估计的角速度};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：为机动过程姿态确定提供初始姿态 输入：\t机动起始时刻本体对轨道估计姿态角() 输出：\t机动目标相对轨道的姿态四元数 变换矩阵 本体对目标坐标系的姿态四元数",
+    "Correct answer": "DetAtt {relativeAttitudeQuaternion, matrix, targetAttitudeQuaternion} {attitudeAngle};",
+    "LLM inference": "DetAtt {attiangT, attirateT} {attiang};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"Input\": [\"attiang\"],\n    \"Output\": [\"attiangT\", \"attirateT\"]\n  },\n  \"Output DSL\": \"DetAtt {attiangT, attirateT} {attiang};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：利用星敏感器A、B的测量，估计姿态 输入：\t星敏感器数据可用标志F_UsingSS       \t本次采样到的星敏感器A的有效输出(只考虑取一个情况)  本周期采样到的星敏感器B的有效输出 太阳星历的输出 输出：\t本体相对轨道系的姿态",
+    "Correct answer": "DetAtt {relativeAttitude} {F_SuingSS, SSAOutput, SSBOutput, SolarEphemerisOutput};",
+    "LLM inference": "DetAtt {attitude} {F_UsingSS, SS_A_output, SS_B_output, sunEphemeris};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<AutomicFunc> ';'\",\n    \"AutomicFunc\": \"<ComputeFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'DetAtt'\",\n    \"OutputData\": \"'{' <IdentifierList> '}'\",\n    \"InputData\": \"'{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]* ('[' <Number> ']')?\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"星敏感器(SS)\"]\n  },\n  \"Data Dictionary\": {\n    \"F_UsingSS\": \"星敏感器数据可用标志\",\n    \"SS_A_output\": \"星敏感器A的有效输出\",\n    \"SS_B_output\": \"星敏感器B的有效输出\",\n    \"sunEphemeris\": \"太阳星历的输出\",\n    \"attitude\": \"本体相对轨道系的姿态\"\n  },\n  \"Output DSL\": \"DetAtt {attitude} {F_UsingSS, SS_A_output, SS_B_output, sunEphemeris};\"\n}\n```"
+  },
+  {
+    "Requirement": "每秒有OBDH校时指令时进行校时",
+    "Correct answer": "After(1s) ProTC OBDH {calibrationInstruction};",
+    "LLM inference": "At(1s) ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"AtConstraint\": \"'At' '(' <Time> (',' <Time>)? ')'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"At(1s) ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "OBDH每隔8分钟向AOCC发送一次校时命令",
+    "Correct answer": "After(8s) ProTC OBDH {calibrationInstruction};",
+    "LLM inference": "Over(8m, c, 1) SendData OBDH {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"OverConstraint\": \"'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"ExtComputer\",\n    \"AOCC\": \"Controller\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"Over(8m, c, 1) SendData OBDH {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "OBDH通过1553B总线每10分钟给AOCC校时一次",
+    "Correct answer": "After(6000s) ProTC OBDH {calibrationInstruction};",
+    "LLM inference": "In (10m) SendData OBDH {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"InConstraint\": \"'In' '(' <Time> ')' | 'In' '[' <Time> ',' <Time> ']'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\",\n    \"1553B\": \"1553B芯片\",\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"In (10m) SendData OBDH {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "遥控处理。功能描述：通过串口接收地面指令，进行指令校验，设置卫星工作模式字。调用条件：160ms周期调用。输入：遥控接收串口地址。输出：下一周期工作模式字。 参照遥控指令格式信息表",
+    "Correct answer": "ProTC OBDH {currentmode};",
+    "LLM inference": "In (160ms) ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"InConstraint\": \"'In' '(' <Time> ')' | 'In' '[' <Time> ',' <Time> ']'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\"\n  },\n  \"Output DSL\": \"In (160ms) ProTC OBDH {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "BC使用子地址29发送时间消息",
+    "Correct answer": "ProTC OBDH {timData};",
+    "LLM inference": "SendData Bus {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线(Bus)\",\n    \"1553B\": \"1553B芯片(1553B)\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"SendData Bus {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：发送和接收OBDH重要数据 输入：OBDH重要数据地址中内容 输出：OBDH重要数据地址中内容",
+    "Correct answer": "ProTC OBDH {addressData};",
+    "LLM inference": "SendData OBDH {OBDH_data}; GetData OBDH {OBDH_data};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"OBDH_data\": \"OBDH重要数据地址中内容\"\n  },\n  \"Output DSL\": \"SendData OBDH {OBDH_data}; GetData OBDH {OBDH_data};\"\n}\n```"
+  },
+  {
+    "Requirement": "OBDH分系统每8分钟给AOCC校时一次，校时通讯时长小于等于3.45ms。",
+    "Correct answer": "ProTC OBDH {correctedTime} Finished Within 3.45ms;",
+    "LLM inference": "In (8m) ProTC OBDH {timeCode} Finished Within 3.45ms;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"InConstraint\": \"'In' '(' <Time> ')' | 'In' '[' <Time> ',' <Time> ']'\",\n    \"TimeConsDef\": \"'Finished' 'Within' <Time>\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"ExtComputer\",\n    \"AOCC\": \"Controller\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"In (8m) ProTC OBDH {timeCode} Finished Within 3.45ms;\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控注入数据，收到遥控注入结束标识后传输结束",
+    "Correct answer": "ProTC OBDH {injectData};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的模式运行类指令",
+    "Correct answer": "ProTC OBDH {modeOperationClassInstruction};",
+    "LLM inference": "ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\"\n  },\n  \"Output DSL\": \"ProTC OBDH {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的部件使用选择类指令",
+    "Correct answer": "ProTC OBDH {selectionClassInstruction};",
+    "LLM inference": "ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\"\n  },\n  \"Output DSL\": \"ProTC OBDH {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的自主诊断允许类指令",
+    "Correct answer": "ProTC OBDH {selfDiagnosisAllowedClassInstruction};",
+    "LLM inference": "ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {currentmode};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的系统状态设置类指令",
+    "Correct answer": "ProTC OBDH {systemStatusSettingClassInstruction};",
+    "LLM inference": "ProTC OBDH {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\"\n  },\n  \"Output DSL\": \"ProTC OBDH {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的部件开关类指令",
+    "Correct answer": "ProTC OBDH {componentSwtichClassInstruction};",
+    "LLM inference": "ProTC OBDH {dssPower, gyroPower, jetPower};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"dssPower\": \"太阳敏感器加断电开关信号\",\n    \"gyroPower\": \"陀螺开关信号\",\n    \"jetPower\": \"推力器开关信号\"\n  },\n  \"Output DSL\": \"ProTC OBDH {dssPower, gyroPower, jetPower};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数据指令注入块的CMG串口指令",
+    "Correct answer": "ProTC OBDH {CMGInstruction};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime, currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"1553B\", \"dpRAM\", \"Bus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\", \"currentmode\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime, currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的系统模式转化条件修正系数",
+    "Correct answer": "ProTC OBDH {systemModelTransformationCondition};",
+    "LLM inference": "ProTC OBDH {mode_trans_coeff};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"mode_trans_coeff\": \"系统模式转化条件修正系数\"\n  },\n  \"Output DSL\": \"ProTC OBDH {mode_trans_coeff};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的相平面参数",
+    "Correct answer": "ProTC OBDH {phasePlaneParameter};",
+    "LLM inference": "ProTC OBDH {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"viewCode\", \"currentmode\", \"deltG[9]\", \"AttigDss[2]\", \"dssPower\", \"jetPower\", \"gyroPower\", \"jetT\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {pulseWidth, attiang, attirate};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的系统正常姿态控制器系数",
+    "Correct answer": "ProTC OBDH {systemNormalAttitude};",
+    "LLM inference": "ProTC OBDH {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"viewCode\", \"currentmode\", \"deltG[9]\", \"AttigDss[2]\", \"dssPower\", \"jetPower\", \"gyroPower\", \"jetT\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的结构滤波器系数",
+    "Correct answer": "ProTC OBDH {structuralFilterCoefficient};",
+    "LLM inference": "ProTC OBDH {filter_coefficient};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"filter_coefficient\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {filter_coefficient};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的轨迹规划修正系数",
+    "Correct answer": "ProTC OBDH {trajectoryPlanningCorrectionCoefficient};",
+    "LLM inference": "ProTC OBDH {trajectory_correction_coefficient};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"trajectory_correction_coefficient\": \"轨迹规划修正系数\"\n  },\n  \"Output DSL\": \"ProTC OBDH {trajectory_correction_coefficient};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的红外太阳姿态滤波参数",
+    "Correct answer": "ProTC OBDH {solarAttitudeFilterParameter};",
+    "LLM inference": "ProTC OBDH {infrared_sun_attitude_filter_params};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"infrared_sun_attitude_filter_params\": \"红外太阳姿态滤波参数\"\n  },\n  \"Output DSL\": \"ProTC OBDH {infrared_sun_attitude_filter_params};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的红外太阳姿态修正系数",
+    "Correct answer": "ProTC OBDH {solarAttitudeCorrectionCoefficient};",
+    "LLM inference": "ProTC OBDH {infrared_sun_attitude_correction_factor};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"infrared_sun_attitude_correction_factor\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {infrared_sun_attitude_correction_factor};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的星敏姿态修正系数",
+    "Correct answer": "ProTC OBDH {SSAttitudeCorrectionCoefficient};",
+    "LLM inference": "ProTC OBDH {attiang, attiangT};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"SS\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"attiang\", \"attiangT\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {attiang, attiangT};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的星敏间基准修正与有效性判断修正系数",
+    "Correct answer": "ProTC OBDH {SSAttitudeValidityJudgment, SSCorrectionCoefficient};",
+    "LLM inference": "ProTC OBDH {viewCode, currentmode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"SS\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"viewCode\", \"currentmode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {viewCode, currentmode, stellarCount, stellarTime};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的红外陀螺数据有效性及系统故障诊断修正系数",
+    "Correct answer": "ProTC OBDH {gyroDataValidity, diagnosisCoefficient};",
+    "LLM inference": "ProTC OBDH {gyro_standard, deltG, GyroPowerState};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"gyro_standard\": \"陀螺的基准值\",\n    \"deltG\": \"陀螺测量角速度\",\n    \"GyroPowerState\": \"陀螺加电状态\"\n  },\n  \"Output DSL\": \"ProTC OBDH {gyro_standard, deltG, GyroPowerState};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的陀螺脉冲当量系数",
+    "Correct answer": "ProTC OBDH {gyroPulseEquivalentCoefficient};",
+    "LLM inference": "ProTC OBDH {gyro_pulse_scale};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"gyro_pulse_scale\": \"陀螺脉冲当量系数\"\n  },\n  \"Output DSL\": \"ProTC OBDH {gyro_pulse_scale};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的陀螺漂移系数",
+    "Correct answer": "ProTC OBDH {gyroDriftCoefficient};",
+    "LLM inference": "ProTC OBDH {gyro_drift_coefficient};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"gyro_drift_coefficient\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {gyro_drift_coefficient};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的轨道参数",
+    "Correct answer": "ProTC OBDH {trajectoryParameter};",
+    "LLM inference": "ProTC OBDH {orbit_parameters};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"orbit_parameters\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {orbit_parameters};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的中继天线系数",
+    "Correct answer": "ProTC OBDH {digitalBusCoefficient};",
+    "LLM inference": "ProTC relayBus {relayCoefficient};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"relayBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"relayCoefficient\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC relayBus {relayCoefficient};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的数传天线系数",
+    "Correct answer": "ProTC OBDH {relayBusCoefficient};",
+    "LLM inference": "ProTC digitalBus {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceName\": \"digitalBus\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"timeCode\"\n  },\n  \"Output DSL\": \"ProTC digitalBus {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的CMG控制系数",
+    "Correct answer": "ProTC OBDH {CMGControlCoefficient};",
+    "LLM inference": "ProTC OBDH {CMG_control_coefficient};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"CMG_control_coefficient\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {CMG_control_coefficient};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的执行机构参数设定及诊断参数",
+    "Correct answer": "ProTC OBDH {setParameter, diagnoseParameter};",
+    "LLM inference": "ProTC OBDH {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"CR\", \"STCounter\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"viewCode\", \"currentmode\", \"deltG[9]\", \"AttigDss[2]\", \"dssPower\", \"jetPower\", \"gyroPower\", \"jetT\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的帆板参数",
+    "Correct answer": "ProTC OBDH {boardParameter};",
+    "LLM inference": "ProTC OBDH {panel_parameters};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"panel_parameters\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {panel_parameters};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的光纤红外控制命令参数",
+    "Correct answer": "ProTC OBDH {controlCommandParameter};",
+    "LLM inference": "ProTC OBDH {fiber_infra_ctrl_cmd_params};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"fiber_infra_ctrl_cmd_params\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {fiber_infra_ctrl_cmd_params};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的系统功能参数设置区数据",
+    "Correct answer": "ProTC OBDH {systemFunctionParameterData};",
+    "LLM inference": "ProTC OBDH {system_function_param};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"system_function_param\": \"系统功能参数设置区数据\"\n  },\n  \"Output DSL\": \"ProTC OBDH {system_function_param};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的系统轨控调姿及轨控姿态控制系数",
+    "Correct answer": "ProTC OBDH {systemTrackControlAttitudeCoefficient};",
+    "LLM inference": "ProTC OBDH {pulseWidth, attiang, attirate, attiangT, attirateT, attimombias};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"AOCC\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"attimombias\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {pulseWidth, attiang, attirate, attiangT, attirateT, attimombias};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的系统安全模式姿态控制器系数",
+    "Correct answer": "ProTC OBDH {systemSafetyModeAttitudeCoefficient};",
+    "LLM inference": "ProTC OBDH {attiang, attirate, attiangT, attirateT, currentmode, GyroPowerState[9], JetPowerState, RDSM, PASM, RASM, CSM, attimombias};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"AOCC\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"currentmode\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {attiang, attirate, attiangT, attirateT, currentmode, GyroPowerState[9], JetPowerState, RDSM, PASM, RASM, CSM, attimombias};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的在轨维护功能参数设置区数据",
+    "Correct answer": "ProTC OBDH {onOrbitMaintenanceParameter};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的地面站位置信息功能区数据",
+    "Correct answer": "ProTC OBDH {locationInformationData};",
+    "LLM inference": "ProTC OBDH {groundStationPosition};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"groundStationPosition\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {groundStationPosition};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控固定参数注入块的外1533B发送子地址内存管理区",
+    "Correct answer": "ProTC OBDH {1533BAddressMemoryData};",
+    "LLM inference": "ProTC 1553B {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"1553B\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC 1553B {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控可变地址注入块",
+    "Correct answer": "ProTC OBDH {variableAddressBlock};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控轨道参数注入块",
+    "Correct answer": "ProTC OBDH {orbitalParameterBlock};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceName\": \"OBDH\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"timeCode, stellarCount, stellarTime\"\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控中继星轨道注入块",
+    "Correct answer": "ProTC OBDH {relaySatelliteBlock};",
+    "LLM inference": "ProTC relayBus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"relayBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC relayBus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收GPS秒脉冲整秒时间",
+    "Correct answer": "ProTC OBDH {GPSSignal};",
+    "LLM inference": "GetData OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"GetData OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收卫星安全控制确认字",
+    "Correct answer": "ProTC OBDH {satelliteSecurityControlConfimationData};",
+    "LLM inference": "ProTC OBDH {safe_control_confirmation};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"safe_control_confirmation\": \"卫星安全控制确认字\"\n  },\n  \"Output DSL\": \"ProTC OBDH {safe_control_confirmation};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收OBDH时间数据",
+    "Correct answer": "ProTC OBDH {timeData};",
+    "LLM inference": "GetData OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"GetData OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收PVT数据",
+    "Correct answer": "ProTC OBDH {PVTData};",
+    "LLM inference": "GetData OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"Bus\", \"1553B\", \"dpRAM\", \"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收轨道根数数据",
+    "Correct answer": "ProTC OBDH {orbitalElementData};",
+    "LLM inference": "GetData OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"Bus\", \"1553B\", \"dpRAM\", \"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收BG与数传天线伺服控制器状态设置数据",
+    "Correct answer": "ProTC OBDH {BGAndTransmissionAntennaControllerSettingData};",
+    "LLM inference": "ProTM digitalBus {currentmode, JetPowerState};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Sensor\": [\"太阳敏感器(DSS)\", \"三浮陀螺(Gyro3F)\", \"星敏感器/星敏(SS)\", \"伽马关机敏感器(gammaSys)\", \"动量轮(mwSys)\", \"总线(Bus)\", \"1553B芯片(1553B)\", \"双口RAM(dpRAM)\", \"A/D数据总线(adBus)\"],\n    \"Actuator\": [\"推力器(JET)\", \"控制寄存器(CR)\", \"星时计数器(STCounter)\", \"触地开关(landSwitch)\", \"数传天线(digitalBus)\", \"中继天线(relayBus)\", \"推力控制总线(thrusterCtrlBus)\", \"上升器推进线路盒(ascBoxCtrl)\", \"着陆器推进线路盒(lanBoxCtrl)\"],\n    \"ExtComputer\": [\"数管计算机(OBDH)\"],\n    \"Controller\": [\"中央控制单元(AOCC)\", \"应急控制器(EE)\"]\n  },\n  \"Data Dictionary\": {\n    \"三轴控制量\": \"pulseWidth\",\n    \"三轴姿态角\": \"attiang\",\n    \"三轴角速度\": \"attirate\",\n    \"目标角度\": \"attiangT\",\n    \"目标角速度\": \"attirateT\",\n    \"太阳可见标志\": \"viewCode\",\n    \"工作模式字\": \"currentmode\",\n    \"陀螺测量角速度\": \"deltG[9]\",\n    \"太阳敏感器采集的姿态角度\": \"AttigDss[2]\",\n    \"太阳敏感器加断电开关信号\": \"dssPower\",\n    \"推力器开关信号\": \"jetPower\",\n    \"陀螺开关信号\": \"gyroPower\",\n    \"推力器喷气间隔时间\": \"jetT\",\n    \"陀螺加电状态\": \"GyroPowerState[9]\",\n    \"推力器加电状态\": \"JetPowerState\",\n    \"速率阻尼\": \"RDSM\",\n    \"俯仰搜索\": \"PASM\",\n    \"滚动搜索\": \"RASM\",\n    \"对日巡航\": \"CSM\",\n    \"三轴姿态角偏差\": \"attimombias\",\n    \"时间码\": \"timeCode\",\n    \"星上时钟的计数值\": \"stellarCount\",\n    \"星时\": \"stellarTime\"\n  },\n  \"Output DSL\": \"ProTM digitalBus {currentmode, JetPowerState};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收同步字",
+    "Correct answer": "ProTC OBDH {synWord};",
+    "LLM inference": "ProTC OBDH {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控注入数据块1、2、3、4、5、6、7",
+    "Correct answer": "ProTC OBDH {blockData[7]};",
+    "LLM inference": "ProTC OBDH {data_block_1, data_block_2, data_block_3, data_block_4, data_block_5, data_block_6, data_block_7};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"data_block_1\", \"data_block_2\", \"data_block_3\", \"data_block_4\", \"data_block_5\", \"data_block_6\", \"data_block_7\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {data_block_1, data_block_2, data_block_3, data_block_4, data_block_5, data_block_6, data_block_7};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收内存设置命令",
+    "Correct answer": "ProTC OBDH {memorySettingCommand};",
+    "LLM inference": "Set CR currentmode;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SetFunc\": \"'Set' <Identifier> <Literal>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"Literal\": \"<Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"Decimal\": \"<Number> '.' [0-9]+\",\n    \"BoolConst\": \"'true' | 'false'\",\n    \"HexConst\": \"'0x' [0-9a-fA-F]+\",\n    \"BinConst\": \"('0' | '1')+\",\n    \"StringConst\": '\\\"\\' (可打印字符)* \\'\\\"\\'',\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"CR\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\"]\n  },\n  \"Output DSL\": \"Set CR currentmode;\"\n}\n```"
+  },
+  {
+    "Requirement": "接收内存数据块号",
+    "Correct answer": "ProTC OBDH {memoryBlockNumber};",
+    "LLM inference": "GetData dpRAM {memory_block_number};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"dpRAM\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"memory_block_number\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"GetData dpRAM {memory_block_number};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收记录AOCC时间指令",
+    "Correct answer": "ProTC OBDH {AOCCtimeCommand};",
+    "LLM inference": "ProTC AOCC {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"ProTC AOCC {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥控间接指令单元",
+    "Correct answer": "ProTC OBDH {indirectInstructionUnit};",
+    "LLM inference": "ProTC OBDH {gyro_standard};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"gyro_standard\": \"陀螺的基准值\"\n  },\n  \"Output DSL\": \"ProTC OBDH {gyro_standard};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收GPS通道板定位数据",
+    "Correct answer": "ProTC OBDH {GPSChannelBoardPositionData};",
+    "LLM inference": "GetData Bus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\", \"OBDH\", \"AOCC\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData Bus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收遥测采集设置指令",
+    "Correct answer": "ProTC OBDH {telemetryAcquisitionSettingInstruction};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": {\n    \"DSL code\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n  }\n}\n```"
+  },
+  {
+    "Requirement": "接收TG状态数据",
+    "Correct answer": "ProTC OBDH {TGStatusData};",
+    "LLM inference": "GetData Gyro3F {GyroPowerState[9], deltG[9]};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Gyro3F\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"GyroPowerState[9]\", \"deltG[9]\"]\n  },\n  \"Output DSL\": \"GetData Gyro3F {GyroPowerState[9], deltG[9]};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收AOCC重要数据包",
+    "Correct answer": "ProTC OBDH {AOCCPacket};",
+    "LLM inference": "ProTM AOCC {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"ProTM AOCC {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收带数据字的同步",
+    "Correct answer": "ProTC OBDH {synWithDataWord};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"Bus\", \"1553B\", \"dpRAM\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收GPS轨道板定位数据",
+    "Correct answer": "ProTC OBDH {GPSOrbitalBoardPositionData};",
+    "LLM inference": "GetData OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceName\": \"OBDH\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"timeCode, stellarCount, stellarTime\"\n  },\n  \"Output DSL\": \"GetData OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收AOCC重要数据",
+    "Correct answer": "ProTC OBDH {AOCCData};",
+    "LLM inference": "GetData AOCC {attiang, attirate, currentmode, timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"currentmode\": \"工作模式字\",\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"GetData AOCC {attiang, attirate, currentmode, timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收GPS数据",
+    "Correct answer": "ProTC OBDH {GPSData};",
+    "LLM inference": "GetData Bus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\", \"OBDH\", \"AOCC\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData Bus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收时间码",
+    "Correct answer": "ProTC OBDH {timeCode};",
+    "LLM inference": "ProTM OBDH {timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"Bus\", \"1553B\", \"dpRAM\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTM OBDH {timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收服务请求确认字",
+    "Correct answer": "ProTC OBDH {serviceRequestConfirmationWord};",
+    "LLM inference": "ProTC OBDH {service_ack};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"service_ack\": \"服务请求确认字\"\n  },\n  \"Output DSL\": \"ProTC OBDH {service_ack};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收数传天线状态数据",
+    "Correct answer": "ProTC OBDH {digitalBusStatusData};",
+    "LLM inference": "GetData digitalBus {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"digitalBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\"]\n  },\n  \"Output DSL\": \"GetData digitalBus {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收AOCC系统注入参数",
+    "Correct answer": "ProTC OBDH {AOCCParameter};",
+    "LLM inference": "ProTC AOCC {attiang, attirate, attiangT, attirateT};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"attiangT\": \"目标角度\",\n    \"attirateT\": \"目标角速度\"\n  },\n  \"Output DSL\": \"ProTC AOCC {attiang, attirate, attiangT, attirateT};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收卫星时间",
+    "Correct answer": "ProTC OBDH {satelliteTime};",
+    "LLM inference": "GetData OBDH {stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\",\n    \"STCounter\": \"星时计数器\"\n  },\n  \"Data Dictionary\": {\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"GetData OBDH {stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收同步控制",
+    "Correct answer": "ProTC OBDH {synControl};",
+    "LLM inference": "ProTM Bus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"AOCC\", \"Bus\", \"1553B\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTM Bus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "从ICU接收控制计算机重要数据",
+    "Correct answer": "ProTC ICU {controlComputerData};",
+    "LLM inference": "GetData AOCC {currentmode, timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"AOCC\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData AOCC {currentmode, timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "从OBDH接收控制计算机重要数据",
+    "Correct answer": "ProTC OBDH {controlComputerData};",
+    "LLM inference": "GetData OBDH {currentmode, timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"currentmode\": \"工作模式字\",\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"GetData OBDH {currentmode, timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "上行注入数据块由地面发送到OBDH分系统",
+    "Correct answer": "ProTC OBDH {uplinkInjectionData};",
+    "LLM inference": "ProTC OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收时间码",
+    "Correct answer": "ProTC OBDH {timeCode};",
+    "LLM inference": "ProTM OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\", \"Bus\", \"1553B\", \"dpRAM\", \"adBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTM OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收GPS数据",
+    "Correct answer": "ProTC OBDH {GPSData};",
+    "LLM inference": "GetData Bus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\", \"OBDH\", \"AOCC\", \"EE\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"GetData Bus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收同步控制",
+    "Correct answer": "ProTC OBDH {synControl};",
+    "LLM inference": "ProTM AOCC {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"AOCC\", \"Bus\", \"1553B\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTM AOCC {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收应急控制器重要数据",
+    "Correct answer": "ProTC OBDH {EEData};",
+    "LLM inference": "ProTC EE {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"EE\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTC EE {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：CAN通信上行/下行数据的组帧和解包 输入：计算结果 输出：按照协议组帧数据",
+    "Correct answer": "ProTM OBDH {computedData};",
+    "LLM inference": "SendData Bus {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"pulseWidth\": \"三轴控制量\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"attiangT\": \"目标角度\",\n    \"attirateT\": \"目标角速度\",\n    \"viewCode\": \"太阳可见标志\",\n    \"currentmode\": \"工作模式字\",\n    \"deltG\": \"陀螺测量角速度\",\n    \"AttigDss\": \"太阳敏感器采集的姿态角度\",\n    \"dssPower\": \"太阳敏感器加断电开关信号\",\n    \"jetPower\": \"推力器开关信号\",\n    \"gyroPower\": \"陀螺开关信号\",\n    \"jetT\": \"推力器喷气间隔时间\",\n    \"GyroPowerState\": \"陀螺加电状态\",\n    \"JetPowerState\": \"推力器加电状态\",\n    \"RDSM\": \"速率阻尼\",\n    \"PASM\": \"俯仰搜索\",\n    \"RASM\": \"滚动搜索\",\n    \"CSM\": \"对日巡航\",\n    \"attimombias\": \"三轴姿态角偏差\",\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"SendData Bus {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "软件需求描述：1553通信上行/下行数据的组帧和处理 输入：计算结果 输出：按照协议组帧数据",
+    "Correct answer": "ProTM OBDH {computedData};",
+    "LLM inference": "ProTC 1553B {计算结果}; ProTM 1553B {组帧数据};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"计算结果\": \"计算结果\",\n    \"组帧数据\": \"组帧数据\"\n  },\n  \"Output DSL\": \"ProTC 1553B {计算结果}; ProTM 1553B {组帧数据};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：与CAN通信获得上行/下行数据 输入：上行数据 输出：下行数据",
+    "Correct answer": "ProTM OBDH {uplinkData};",
+    "LLM inference": "GetData Bus {uplinkData}; SendData Bus {downlinkData};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"uplinkData\": \"上行数据\",\n    \"downlinkData\": \"下行数据\"\n  },\n  \"Output DSL\": \"GetData Bus {uplinkData}; SendData Bus {downlinkData};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：CAN通信上行/下行数据的组帧和解包 输入：计算结果 输出：按照协议组帧数据",
+    "Correct answer": "ProTM OBDH {computedData};",
+    "LLM inference": "SendData Bus {计算结果, 组帧数据};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"计算结果\": \"计算结果\",\n    \"组帧数据\": \"组帧数据\"\n  },\n  \"Output DSL\": \"SendData Bus {计算结果, 组帧数据};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：CAN通信上行/下行数据的组帧和处理 输入：计算结果 输出：按照协议组帧数据",
+    "Correct answer": "ProTM OBDH {computedData};",
+    "LLM inference": "ProTC Bus {pulseWidth, attiang, attirate, attiangT, attirateT}; ProTM 1553B {viewCode, currentmode, timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"pulseWidth\": \"三轴控制量\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"attiangT\": \"目标角度\",\n    \"attirateT\": \"目标角速度\",\n    \"viewCode\": \"太阳可见标志\",\n    \"currentmode\": \"工作模式字\",\n    \"deltG\": \"陀螺测量角速度\",\n    \"AttigDss\": \"太阳敏感器采集的姿态角度\",\n    \"dssPower\": \"太阳敏感器加断电开关信号\",\n    \"jetPower\": \"推力器开关信号\",\n    \"gyroPower\": \"陀螺开关信号\",\n    \"jetT\": \"推力器喷气间隔时间\",\n    \"GyroPowerState\": \"陀螺加电状态\",\n    \"JetPowerState\": \"推力器加电状态\",\n    \"RDSM\": \"速率阻尼\",\n    \"PASM\": \"俯仰搜索\",\n    \"RASM\": \"滚动搜索\",\n    \"CSM\": \"对日巡航\",\n    \"attimombias\": \"三轴姿态角偏差\",\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"ProTC Bus {pulseWidth, attiang, attirate, attiangT, attirateT}; ProTM 1553B {viewCode, currentmode, timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：CAN通信上行/下行数据的组帧和解包 输入：计算结果 输出：按照协议组帧数据",
+    "Correct answer": "ProTM OBDH {computedData};",
+    "LLM inference": "SendData Bus {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"pulseWidth\": \"三轴控制量\",\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\",\n    \"attiangT\": \"目标角度\",\n    \"attirateT\": \"目标角速度\",\n    \"viewCode\": \"太阳可见标志\",\n    \"currentmode\": \"工作模式字\",\n    \"deltG\": \"陀螺测量角速度\",\n    \"AttigDss\": \"太阳敏感器采集的姿态角度\",\n    \"dssPower\": \"太阳敏感器加断电开关信号\",\n    \"jetPower\": \"推力器开关信号\",\n    \"gyroPower\": \"陀螺开关信号\",\n    \"jetT\": \"推力器喷气间隔时间\",\n    \"GyroPowerState\": \"陀螺加电状态\",\n    \"JetPowerState\": \"推力器加电状态\",\n    \"RDSM\": \"速率阻尼\",\n    \"PASM\": \"俯仰搜索\",\n    \"RASM\": \"滚动搜索\",\n    \"CSM\": \"对日巡航\",\n    \"attimombias\": \"三轴姿态角偏差\",\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"SendData Bus {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：与CAN通信获得上行/下行数据 输入：上行数据 输出：下行数据",
+    "Correct answer": "ProTM OBDH {uplinkData};",
+    "LLM inference": "GetData Bus {uplinkData}; SendData Bus {downlinkData};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"Bus\": \"总线\",\n    \"1553B\": \"1553B芯片\"\n  },\n  \"Data Dictionary\": {\n    \"uplinkData\": \"上行数据\",\n    \"downlinkData\": \"下行数据\"\n  },\n  \"Output DSL\": \"GetData Bus {uplinkData}; SendData Bus {downlinkData};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：发送和接收OBDH重要数据 输入：OBDH重要数据地址中内容 输出：OBDH重要数据地址中内容",
+    "Correct answer": "ProTM OBDH {addressData};",
+    "LLM inference": "SendData OBDH {OBDH_data_address}; GetData OBDH {OBDH_data_address};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"OBDH重要数据地址\": \"OBDH_data_address\"\n  },\n  \"Output DSL\": \"SendData OBDH {OBDH_data_address}; GetData OBDH {OBDH_data_address};\"\n}\n```"
+  },
+  {
+    "Requirement": "功能描述：发送和接收时间差值 输入：星时，计数值 输出：时间差值",
+    "Correct answer": "ProTM OBDH {stellarTime, stellarCount};",
+    "LLM inference": "ComputeFunc Diagnose timeCode {stellarTime, stellarCount};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ComputeFunc\": \"<ComputeType> <OutputData> <InputData>\",\n    \"ComputeType\": \"'OrbitCtrl' | 'ProVld' | 'DetAtt' | 'AttCtrl' | 'Diagnose' | 'SwitchMode'\",\n    \"InputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"OutputData\": \"<Identifier> | '{' <IdentifierList> '}'\",\n    \"IdentifierList\": \"<Identifier> (',' <Identifier>)*\",\n    \"DeviceName\": \"<Identifier>\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"STCounter\": \"星时计数器\",\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"stellarTime\": \"星时\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"timeCode\": \"时间码\"\n  },\n  \"Output DSL\": \"ComputeFunc Diagnose timeCode {stellarTime, stellarCount};\"\n}\n```"
+  },
+  {
+    "Requirement": "申请OBDH停止发送星箭分离信号",
+    "Correct answer": "ProTM OBDH {separationStopSign};",
+    "LLM inference": "ProTC OBDH {stellarCount};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"stellarCount\": \"星上时钟的计数值\"\n  },\n  \"Output DSL\": \"ProTC OBDH {stellarCount};\"\n}\n```"
+  },
+  {
+    "Requirement": "将AOCC计算得出的星历数据打包后放到星历数据地址空间中",
+    "Correct answer": "ProTM OBDH {AOCCEphemerisData};",
+    "LLM inference": "ProTM OBDH {stellarTime, timeCode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"AOCC\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"stellarTime\", \"timeCode\"]\n  },\n  \"Output DSL\": \"ProTM OBDH {stellarTime, timeCode};\"\n}\n```"
+  },
+  {
+    "Requirement": "接收内存读出地址及长度，发送内存读出数据包",
+    "Correct answer": "ProTM OBDH {memoryReadAddress, memoryReadLength};",
+    "LLM inference": "SendData Bus {memoryAddress, memoryLength, memoryDataPacket};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\", \"OBDH\", \"AOCC\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"memoryAddress\", \"memoryLength\", \"memoryDataPacket\"]\n  },\n  \"Output DSL\": \"SendData Bus {memoryAddress, memoryLength, memoryDataPacket};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送姿态数据包",
+    "Correct answer": "ProTM OBDH {postureDataPacket};",
+    "LLM inference": "SendData Bus {attiang, attirate, attiangT, attirateT};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"attiang\", \"attirate\", \"attiangT\", \"attirateT\"]\n  },\n  \"Output DSL\": \"SendData Bus {attiang, attirate, attiangT, attirateT};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送红外太阳敏感器数据包",
+    "Correct answer": "ProTM OBDH {solarSensorDataPacket};",
+    "LLM inference": "ProTM DSS {AttigDss};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": \"DSS\"\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": \"AttigDss[2]\"\n  },\n  \"Output DSL\": \"ProTM DSS {AttigDss};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送星敏感器数据包",
+    "Correct answer": "ProTM OBDH {SSDataPacket};",
+    "LLM inference": "ProTM OBDH {attiang, attirate, timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"SS\", \"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"attiang\", \"attirate\", \"viewCode\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"ProTM OBDH {attiang, attirate, timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送天线数据包",
+    "Correct answer": "ProTM OBDH {antennaDataPacket};",
+    "LLM inference": "SendData digitalBus {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"digitalBus\", \"relayBus\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"SendData digitalBus {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送轨道数据包",
+    "Correct answer": "ProTM OBDH {orbitDataPacket};",
+    "LLM inference": "SendData OBDH {pulseWidth, attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"SendDataFunc\": \"'SendData' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"Bus\", \"1553B\", \"dpRAM\", \"adBus\", \"digitalBus\", \"relayBus\", \"OBDH\", \"AOCC\", \"EE\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"pulseWidth\", \"attiang\", \"attirate\", \"attiangT\", \"attirateT\", \"viewCode\", \"currentmode\", \"deltG[9]\", \"AttigDss[2]\", \"dssPower\", \"jetPower\", \"gyroPower\", \"jetT\", \"GyroPowerState[9]\", \"JetPowerState\", \"RDSM\", \"PASM\", \"RASM\", \"CSM\", \"attimombias\", \"timeCode\", \"stellarCount\", \"stellarTime\"]\n  },\n  \"Output DSL\": \"SendData OBDH {pulseWidth, attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送部件工作状态数据包",
+    "Correct answer": "ProTM OBDH {workingStatusDataPacket};",
+    "LLM inference": "ProTM OBDH {currentmode, GyroPowerState[9], JetPowerState, dssPower, gyroPower, jetPower};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"OBDH\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\", \"GyroPowerState[9]\", \"JetPowerState\", \"dssPower\", \"gyroPower\", \"jetPower\"]\n  },\n  \"Output DSL\": \"ProTM OBDH {currentmode, GyroPowerState[9], JetPowerState, dssPower, gyroPower, jetPower};\"\n}\n```"
+  },
+  {
+    "Requirement": "AOCC应在900ms内准备好AOCC 时间数据",
+    "Correct answer": "ProTM OBDH {AOCCTimeData} Finished Within 900ms;",
+    "LLM inference": "In (900ms) ProTM AOCC {timeCode, stellarCount, stellarTime} Finished Within 900ms;",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"InConstraint\": \"'In' '(' <Time> ')' | 'In' '[' <Time> ',' <Time> ']'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"TimeConsDef\": \"'Finished' 'Within' <Time>\"\n  },\n  \"Device Library\": {\n    \"AOCC\": \"中央控制单元\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"In (900ms) ProTM AOCC {timeCode, stellarCount, stellarTime} Finished Within 900ms;\"\n}\n```"
+  },
+  {
+    "Requirement": "发送卫星应急控制字",
+    "Correct answer": "ProTM OBDH {satelliteEmergencyControlWord};",
+    "LLM inference": "ProTC EE {currentmode};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTCFunc\": \"'ProTC' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"DeviceSet\": [\"AOCC\", \"EE\"]\n  },\n  \"Data Dictionary\": {\n    \"DataSet\": [\"currentmode\"]\n  },\n  \"Output DSL\": \"ProTC EE {currentmode};\"\n}\n```"
+  },
+  {
+    "Requirement": "OBDH每500ms取1次姿态数据",
+    "Correct answer": "After(500ms) ProTM OBDH {attitudeData};",
+    "LLM inference": "Over(500ms, c, 1) GetData OBDH {attiang, attirate};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"GetDataFunc\": \"'GetData' <DeviceName> '{' <DataSet> '}'\",\n    \"TimeConstraint\": \"<AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>\",\n    \"OverConstraint\": \"'Over' '(' <Time> ',' ('c' | 'nc') ',' <Number> ')'\",\n    \"Time\": \"<Number> ('s' | 'ms' | 'us')\",\n    \"Number\": \"'0' | [1-9][0-9]*\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"attiang\": \"三轴姿态角\",\n    \"attirate\": \"三轴角速度\"\n  },\n  \"Output DSL\": \"Over(500ms, c, 1) GetData OBDH {attiang, attirate};\"\n}\n```"
+  },
+  {
+    "Requirement": "发送延时遥测数据",
+    "Correct answer": "ProTM OBDH {delayTelemetryData};",
+    "LLM inference": "ProTM OBDH {timeCode, stellarCount, stellarTime};",
+    "LLM total answer": "```json\n{\n  \"BNF Grammar\": {\n    \"OperationalStmt\": \"<TimeConstraint>? <AutomicFunc> <CapabilitySpec>? <TimeConsDef>? ';'\",\n    \"AutomicFunc\": \"<InitFunc> | <SetFunc> | <GetDataFunc> | <SendDataFunc> | <ComputeFunc> | <ProTMFunc> | <ProTCFunc>\",\n    \"ProTMFunc\": \"'ProTM' <DeviceName> '{' <DataSet> '}'\",\n    \"DeviceName\": \"<Identifier>\",\n    \"DataSet\": \"<Identifier> (',' <Identifier>)*\",\n    \"Identifier\": \"[a-zA-Z_] [a-zA-Z0-9_]*\"\n  },\n  \"Device Library\": {\n    \"OBDH\": \"数管计算机\"\n  },\n  \"Data Dictionary\": {\n    \"timeCode\": \"时间码\",\n    \"stellarCount\": \"星上时钟的计数值\",\n    \"stellarTime\": \"星时\"\n  },\n  \"Output DSL\": \"ProTM OBDH {timeCode, stellarCount, stellarTime};\"\n}\n```"
+  }
+]

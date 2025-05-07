@@ -1,0 +1,25 @@
+##Input Requirement## 
+遥测处理。功能描述：打包太阳可见标志，通过串口发送给数管。输入：太阳可见标志、串口通信地址。输出：无。
+
+##BNF Grammar##
+<OperationalStmt> ::= <AutomicFunc> ';'
+
+<AutomicFunc>     ::= <ProTMFunc>
+
+<ProTMFunc>       ::= 'ProTM' <DeviceName> '{' <DataSet> '}'
+
+<DeviceName>      ::= <Identifier>
+
+<DataSet>         ::= <Identifier> (',' <Identifier>)*
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+
+
+##Device Library##
+OBDH
+
+##Data Dictionary##
+viewCode
+
+##Output DSL##
+ProTM OBDH {viewCode};

@@ -1,0 +1,39 @@
+<OperationalStmt> ::= <TimeConstraint>? <AutomicFunc> <TimeConsDef>? ';'
+
+<AutomicFunc>     ::= <ComputeFunc> 
+
+<ComputeFunc>     ::= <ComputeType> <OutputData> <InputData>
+
+<ComputeType>     ::= 'CalEnv' | 'ProVld' | 'DetAtt' | 'CalCtrl' | 'Diagnose' | 'SwitchMode' | 'CalTar'
+
+<InputData>       ::= <Identifier> | '{' <IdentifierList> '}'
+
+<OutputData>      ::= <Identifier> | '{' <IdentifierList> '}'
+
+<IdentifierList>  ::= <Identifier> (', ' <Identifier>)*
+
+<TimeConstraint>  ::= <AtConstraint> | <InConstraint> | <AfterConstraint> | <OverConstraint>
+
+<AtConstraint>    ::= 'At' '(' <Time> (', ' 'period')? (', ' <Time>)? ')'
+                     /* 
+                       第一个 <Time>：起始时间或间隔时间
+                       如果紧跟 ,period 则表示周期触发
+                       可选的第二个 <Time> 用于指定结束时间范围 
+                     */
+
+<InConstraint>    ::= 'In' '(' <Time> ')' | 'In' '[' <Time> ', ' <Time> ']'
+<AfterConstraint> ::= 'After' '(' <Time> ')' | 'After' '[' <Time> ', ' <Time> ']'
+<OverConstraint>  ::= 'Over' '(' <Time> ', ' ('c' | 'nc') ', ' <Number> ')'
+
+<TimeConsDef>     ::= 'Finished' 'Within' <Time>
+
+<Literal>         ::= <Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>
+<Number>          ::= '0' | [1-9][0-9]*
+<Decimal>         ::= <Number> '.' [0-9]+
+<BoolConst>       ::= 'true' | 'false'
+<HexConst>        ::= '0x' [0-9a-fA-F]+
+<BinConst>        ::= ('0' | '1')+
+<StringConst>     ::= '"' (可打印字符)* '"' 
+<Time>            ::= <Number> ('s' | 'ms')
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*

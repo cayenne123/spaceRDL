@@ -1,0 +1,24 @@
+<DataSet>
+三轴控制量： pulseWidth
+三轴姿态角：attiang
+三轴角速度：attirate
+目标角度：attiangT
+目标角速度：attirateT
+太阳可见标志：viewCode
+工作模式字：currentmode
+陀螺测量角速度：deltG[9]
+太阳敏感器采集的姿态角度：AttigDss[2]
+太阳敏感器加断电开关信号： dssPower
+推力器开关信号：jetPower
+陀螺开关信号：gyroPower
+推力器喷气间隔时间：jetT
+陀螺加电状态：GyroPowerState[9]
+推力器加电状态: JetPowerState
+速率阻尼：RDSM
+俯仰搜索：PASM
+滚动搜索：RASM
+对日巡航：CSM
+三轴姿态角偏差：attimombias
+时间码：timeCode
+星上时钟的计数值：stellarCount
+星时：stellarTime

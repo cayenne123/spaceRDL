@@ -1,35 +1,46 @@
 ### Task Definition ###
 你是一位专精于领域专用语言 (Domain Specific Language, DSL) 生成的专家。请根据下面的自然语言需求，执行以下步骤来生成满足需求的正式化DSL描述：
 
-1. **识别并描述BNF语法规则**  
-   - 根据提供的BNF语法指南，列出本次生成DSL所需的BNF规则，并做简要说明。  
+1. **解析并提取 BNF 规则**  
+   - 根据「BNF 语法指南」，筛选本次需求所需的文法规则，并在输出中用键值对形式列出，每条规则简要说明其作用。
 
-2. **列出所需设备与数据字典**  
-   - 从给定的“设备库 (Device Library)”与“数据字典 (Data Dictionary)”中，选取或组合所有在DSL中会用到的条目。  
+2. **识别并列出设备**  
+   - 必须是从「设备库」中挑选所有在 DSL 中会用到的设备名称，输出为一个设备集合。
 
-3. **生成符合BNF规则的正式需求描述**  
-   - 在书写过程中必须参照已经列出的BNF规则、设备库以及数据字典。  
-   - 必须使用`<automicfunc>`模板来描述行为；若存在`<timeconstraint>`，应置于`<automicfunc>`开始位置。  
+3. **识别并列出变量**  
+   - 从功能描述中提取所有输入变量与输出变量。  
+   - **所有变量名必须以字母开头，仅由英文字母和数字组成，不得包含点号（.）、下划线（_）或其他特殊符号。**  
+   - 若存在循环或数组变量，用 `变量名 = 起始—结束` 或 `数组名[长度]` 的格式表示。
 
-4. **输出格式要求**  
-   - 输出必须是JSON格式，结构如下所示：
+4. **生成符合文法的 DSL 代码**  
+   - 严格参照已列出的 BNF 规则、设备集合和数据字典，输出最终 DSL 表达。 
+
+5. **输出格式要求**  
+   - 必须以有效 JSON 返回，格式如下：
      ```json
-     {"BNF Grammar": {"selected BNF rules"},
-       "Device Library": {"DeviceSet"},
-       "Data Dictionary": {"DataSet"},
-       "Output DSL": {"DSL code"}
+     {
+       "BNF Grammar": {
+         "<RuleName>": "<BNF 定义>",
+         …
+       },
+       "Device Library": [
+         "设备A",
+         "设备B",
+         …
+       ],
+       "Data Dictionary": {
+         "变量名1": "含义或示例值",
+         …
+       },
+       "Output DSL": "最终生成的 DSL 语句"
      }
      ```
-*** Please return "BNF Grammar", "Device Library", "Data Dictionary" and "Output DSL" as JSON dictionaries. ***
    
-###BNF Grammar to Use###
+###BNF Grammar###
 {bnf_grammar}
 
 ###Device Library###
 {device}
-
-###Data Dictionary###
-{data_dictionary}
 
 ###Example###
 {example}

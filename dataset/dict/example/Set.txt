@@ -1,0 +1,25 @@
+##Input Requirement## 
+设置初始太阳可见标志为不可见
+
+##BNF Grammar##
+<OperationalStmt> ::= <AutomicFunc> ';'
+
+<AutomicFunc>     ::= <SetFunc>
+
+<SetFunc>         ::= 'Set' <Identifier> <Literal>
+
+<Identifier>      ::= [a-zA-Z_] [a-zA-Z0-9_]*
+
+<Literal>         ::= <Number> | <Decimal> | <BoolConst> | <HexConst> | <BinConst> | <StringConst> | <Time>
+
+<BoolConst>       ::= 'true' | 'false'
+
+
+##Device Library##
+viewcode
+
+##Data Dictionary##
+false
+
+##Output DSL##
+Set viewcode false;

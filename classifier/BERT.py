@@ -3,6 +3,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, BertConfig
 import os,time
+# os.environ["TRANSFORMERS_NO_TF"] = "1"      # 禁止 transformers 检测 TF
+# os.environ["TRANSFORMERS_NO_JAX"] = "1"     # 如不使用 JAX，同样禁掉
 import numpy as np
 from sklearn.metrics import classification_report, matthews_corrcoef  
 import pandas as pd
@@ -38,17 +40,29 @@ print(torch.version.cuda)
 
 
 functional_keys = [
-    "功能需求-初始化", 
-    "功能需求-数据采集", 
-    "功能需求-控制输出", 
-    "功能需求-遥测", 
-    "功能需求-控制计算-姿态控制",
-    "功能需求-控制计算-姿态确定", 
-    "功能需求-控制计算-模式管理", 
-    "功能需求-控制计算-轨道计算", 
-    "功能需求-遥控", 
-    "功能需求-控制计算-运行时保障-故障诊断和处理", 
-    "功能需求-控制计算-运行时保障-数据有效性判断", 
+    "Compute/CalCtrl",
+    "Compute/CalEnv",
+    "Compute/CalTar",
+    "Compute/DetAtt",
+    "Compute/Diagnose",
+    "Compute/ProVld",
+    "Compute/SwitchMode",
+    "GetData",
+    "Init",
+    "ProTC",
+    "ProTM",
+    "SendData"
+    # "功能需求-初始化", 
+    # "功能需求-数据采集", 
+    # "功能需求-控制输出", 
+    # "功能需求-遥测", 
+    # "功能需求-控制计算-姿态控制",
+    # "功能需求-控制计算-姿态确定", 
+    # "功能需求-控制计算-模式管理", 
+    # "功能需求-控制计算-轨道计算", 
+    # "功能需求-遥控", 
+    # "功能需求-控制计算-运行时保障-故障诊断和处理", 
+    # "功能需求-控制计算-运行时保障-数据有效性判断", 
     # "非功能需求-可靠性需求", 
     # "非功能需求-安全性需求", 
     # "非功能需求-性能需求-精度需求", 
@@ -181,7 +195,7 @@ def load_data(file_path,fold,train_or_test):
     #         if item==item2["requirement"]:
     #             text = "Requirement:"+item2["requirement"]+"\n"+"Core classes:"+item2["refined_core_classes"]
     #             texts_new.append(text)
-    texts = df['Requirements Description'].values  # 第一列为 "Requirements Description"
+    texts = df['description'].values  # 第一列为 "Requirements Description"
     labels = df.iloc[:, 1:len(functional_keys)+1].values  # 从第二列到第十九列为标签（12个数字）
     # features = df['feature'].values  # 从第二十列到最后一列为特征（18个数字）
     weights = []
@@ -196,10 +210,9 @@ def train_model(model, data_loader, optimizer, scheduler, device, loss_fn):
     i = 0
     for batch in data_loader:
         optimizer.zero_grad()
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels = batch['labels'].to(device)
-
+        input_ids      = batch['input_ids'].to(device, non_blocking=True)
+        attention_mask = batch['attention_mask'].to(device, non_blocking=True)
+        labels         = batch['labels'].to(device, non_blocking=True)
         outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         logits = outputs.logits
         loss = loss_fn(logits, labels)  # 使用 BCEWithLogitsLoss
@@ -223,9 +236,9 @@ def eval_model(model, data_loader, device,fold_dir, k=3):
     pass_at_k_best_list = []
     with torch.no_grad():
         for batch in data_loader:
-            input_ids = batch['input_ids'].to(device)
-            attention_mask = batch['attention_mask'].to(device)
-            labels = batch['labels'].to(device)
+            input_ids      = batch['input_ids'].to(device, non_blocking=True)
+            attention_mask = batch['attention_mask'].to(device, non_blocking=True)
+            labels         = batch['labels'].to(device, non_blocking=True)
 
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
             logits = outputs.logits
@@ -279,9 +292,6 @@ def eval_model(model, data_loader, device,fold_dir, k=3):
     pass_at_k_best_df.to_excel(os.path.join(fold_dir, f'pass_at_{k}_best.xlsx'), index=False)
 
     
-# 设置设备
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Using device: {device}")
 
 # 主训练函数，处理每个fold的训练和评估
 def cross_validation_training(data_dir, n_splits=10):
@@ -303,6 +313,8 @@ def cross_validation_training(data_dir, n_splits=10):
         # config = BertConfig.from_pretrained('google-bert/bert-base-chinese')  
         # config.hidden_dropout_prob = 0.2  # 设置隐藏层的 Dropout 率  
         # config.attention_probs_dropout_prob = 0.2  # 设置注意力概率的 Dropout 率  
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(f"Using device: {device}")
         tokenizer = AutoTokenizer.from_pretrained("D:/LLM-code/LLM_Models/bert-base-chinese")
         model = AutoModelForSequenceClassification.from_pretrained("D:/LLM-code/LLM_Models/bert-base-chinese", num_labels=len(functional_keys))
         # tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
@@ -317,8 +329,8 @@ def cross_validation_training(data_dir, n_splits=10):
         loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         # loss_fn = torch.nn.BCEWithLogitsLoss()
 
-        train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, worker_init_fn=lambda worker_id: np.random.seed(SEED + worker_id))
-        test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False, worker_init_fn=lambda worker_id: np.random.seed(SEED + worker_id))
+        train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, pin_memory=True, worker_init_fn=lambda worker_id: np.random.seed(SEED + worker_id))
+        test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False, pin_memory=True, worker_init_fn=lambda worker_id: np.random.seed(SEED + worker_id))
         
         # 设置优化器
         optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5,  weight_decay=1e-2)
@@ -439,7 +451,7 @@ def cross_validation_training(data_dir, n_splits=10):
 
 
 # 设置数据文件夹路径
-data_dir = 'classifier/splits'
+data_dir = 'classifier/split82'
 
 # 执行十倍交叉验证训练
 cross_validation_training(data_dir)

@@ -1,0 +1,6 @@
+<DeviceName>
+PortName: currentmode(模式字), 32ms定时控制寄存器(timer32), 1553B芯片(1553B), 控制寄存器(CR), GPS无效判断的连续次数(GPSConsecutiveInvalidJudgmentNumber), 星时(stellarTime)
+Sensor：三浮陀螺(Gyro3F), 太阳敏感器(DSS), 推力器(JET), 动量轮(mwSys), 伽马关机敏感器(gammaSys), 触地开关(landSwitch), A/D数据总线(adBus), 星时计数器(STCounter), 双口RAM(dpRAM), LTU(LTU), 星敏感器/星敏(SS), GPS(GPS), SDC(SDC), 总线(Bus)
+Controller：中央控制单元(AOCC), 应急控制器(EE)
+Actuator：三浮陀螺(Gyro3F), 太阳敏感器(DSS), 推力器(JET), 星敏感器/星敏(SS), 串口5(US5), 数传天线(datatransAntenna), 中继天线(relayAntenna), 升器推进线路盒(ascBox), 着陆器推进线路盒(lanBox), DM(DM), 伺服控制器(ServoController)
+ExtComputer：数管计算机(OBDH), 载荷控制单元(ICU)
